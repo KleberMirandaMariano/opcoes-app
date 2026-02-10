@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html class="dark" lang="pt-BR">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Configurações de Dados B3</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <script>
+    tailwind.config = { darkMode: "class", theme: { extend: { colors: { primary: "#13ec6a", "background-dark": "#102217" }, fontFamily: { display: ["Manrope", "sans-serif"] } } } }
+  </script>
+  <style>
+    body { font-family: 'Manrope', sans-serif; }
+    .status-glow { box-shadow: 0 0 8px rgba(19, 236, 106, 0.4); }
+    body { min-height: max(884px, 100dvh); }
+  </style>
+</head>
+<body class="bg-background-dark text-slate-100 antialiased min-h-screen pb-24">
+  <div class="relative mx-auto min-h-screen w-full max-w-[430px] flex flex-col bg-background-dark overflow-x-hidden border-x border-slate-800">
+    <header class="sticky top-0 z-50 bg-background-dark/80 backdrop-blur-md px-4 pt-12 pb-4 flex items-center justify-between border-b border-slate-800">
+      <a href="index.html" class="flex items-center justify-center size-10 rounded-full hover:bg-slate-800 transition-colors">
+        <span class="material-symbols-outlined text-2xl">arrow_back_ios_new</span>
+      </a>
+      <h1 class="text-lg font-bold tracking-tight">Configurações B3</h1>
+      <button class="flex items-center justify-center size-10 rounded-full hover:bg-slate-800 transition-colors" onclick="loadSettings()">
+        <span class="material-symbols-outlined text-2xl">sync</span>
+      </button>
+    </header>
+    <div class="px-4 py-6">
+      <div id="status-box" class="bg-primary/10 border border-primary/20 rounded-xl p-4 flex items-center gap-4">
+        <div class="bg-primary/20 p-3 rounded-lg">
+          <span class="material-symbols-outlined text-primary text-3xl">hub</span>
+        </div>
+        <div>
+          <p class="text-xs uppercase tracking-widest font-bold text-primary/80">Status do Fluxo</p>
+          <p id="status-text" class="text-lg font-bold">Conexão Estável</p>
+          <p id="status-provider" class="text-sm text-slate-500">Provedor Principal: Brapi</p>
+        </div>
+      </div>
+    </div>
+    <div class="px-4 pb-2">
+      <h2 class="text-xs font-bold text-slate-500 uppercase tracking-widest">Provedores de Dados</h2>
+    </div>
+    <div class="px-4 space-y-3" id="providers-list"></div>
+    <div class="px-4 mt-8 pb-2">
+      <h2 class="text-xs font-bold text-slate-500 uppercase tracking-widest">Opções Avançadas</h2>
+    </div>
+    <div class="px-4 space-y-2">
+      <div class="flex items-center justify-between p-4 bg-slate-900/50 border border-slate-800 rounded-xl">
+        <div>
+          <p class="text-sm font-semibold">Failover Automático</p>
+          <p class="text-xs text-slate-500">Mudar de provedor se a latência subir</p>
+        </div>
+        <input id="failover" type="checkbox" checked class="w-11 h-6 rounded-full bg-slate-700 accent-primary"/>
+      </div>
+      <div class="flex items-center justify-between p-4 bg-slate-900/50 border border-slate-800 rounded-xl">
+        <div>
+          <p class="text-sm font-semibold">Logs de Conectividade</p>
+          <p class="text-xs text-slate-500">Armazenar histórico de erros localmente</p>
+        </div>
+        <input id="logs" type="checkbox" class="w-11 h-6 rounded-full bg-slate-700 accent-primary"/>
+      </div>
+    </div>
+    <div class="p-6 mt-auto text-center">
+      <a class="text-primary text-sm font-bold flex items-center justify-center gap-2 hover:opacity-80" href="#">Como obter chaves de API?</a>
+      <p class="mt-4 text-[10px] text-slate-500 uppercase tracking-[0.2em] font-medium">Versão 2.4.0-build.82</p>
+    </div>
+    <div class="sticky bottom-0 bg-background-dark/90 backdrop-blur-lg border-t border-slate-800 p-4 pb-8">
+      <button id="btn-save" class="w-full bg-primary text-black font-extrabold py-4 rounded-xl shadow-lg hover:scale-[0.98] transition-transform active:scale-95">
+        SALVAR CONFIGURAÇÕES
+      </button>
+    </div>
+  </div>
+  <div id="nav-placeholder"></div>
+  <script src="js/api.js"></script>
+  <script>
+    document.getElementById('nav-placeholder').innerHTML = nav();
+    (function(){ const a = document.querySelector('#nav-placeholder a[href="config.html"]'); if(a) { a.classList.add('text-primary'); a.querySelector('span:last-child').classList.add('text-primary'); } })();
+
+    async function loadSettings() {
+      try {
+        const r = await api('/api/settings');
+        const d = r.data;
+        document.getElementById('status-provider').textContent = 'Provedor Principal: ' + (d.provider || 'Brapi');
+        document.getElementById('failover').checked = d.failover !== false;
+        document.getElementById('logs').checked = d.logs === true;
+        const list = d.providers || [];
+        document.getElementById('providers-list').innerHTML = list.map(p => `
+          <div class="bg-slate-900/50 border ${p.active ? 'border-2 border-primary/50' : 'border-slate-800'} rounded-xl p-4 flex flex-col gap-4">
+            <div class="flex justify-between items-start">
+              <div class="flex gap-3">
+                <div class="${p.active ? 'bg-primary/10' : 'bg-slate-800'} p-2 rounded-lg size-12 flex items-center justify-center">
+                  <span class="material-symbols-outlined text-2xl ${p.active ? 'text-primary' : 'text-slate-400'}">${p.id === 'brapi' ? 'bolt' : p.id === 'hgbrasil' ? 'globe' : 'database'}</span>
+                </div>
+                <div>
+                  <div class="flex items-center gap-2">
+                    <h3 class="font-bold">${p.name}</h3>
+                    ${p.active ? '<span class="text-[10px] px-1.5 py-0.5 bg-primary text-black font-bold rounded uppercase">Ativo</span>' : ''}
+                  </div>
+                  <p class="text-xs text-slate-500">${p.plan}</p>
+                </div>
+              </div>
+              <div class="size-3 rounded-full ${p.active ? 'bg-primary status-glow' : 'bg-slate-700'}"></div>
+            </div>
+            ${p.id === 'hgbrasil' ? '<div><label class="text-[10px] font-bold text-slate-500 uppercase">API Key</label><input type="password" class="w-full bg-slate-800 border-none rounded-lg text-sm px-3 py-2 mt-1 text-slate-300" placeholder="••••••••"/></div>' : '<div class="grid grid-cols-2 gap-2"><div class="bg-slate-800/50 p-2 rounded-lg flex items-center gap-2"><span class="material-symbols-outlined text-sm text-slate-400">speed</span><span class="text-xs">' + (p.latency || '-') + 'ms Latência</span></div><div class="bg-slate-800/50 p-2 rounded-lg flex items-center gap-2"><span class="material-symbols-outlined text-sm text-slate-400">schedule</span><span class="text-xs">' + (p.delay || '-') + '</span></div></div>'}
+          </div>
+        `).join('');
+      } catch (e) {
+        document.getElementById('status-text').textContent = 'Erro ao carregar';
+      }
+    }
+
+    document.getElementById('btn-save').onclick = async () => {
+      try {
+        await api('/api/settings', { method: 'POST', body: JSON.stringify({ failover: document.getElementById('failover').checked, logs: document.getElementById('logs').checked }) });
+        alert('Configurações salvas.');
+      } catch (e) {
+        alert('Erro ao salvar.');
+      }
+    };
+    loadSettings();
+  </script>
+</body>
+</html>

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html class="dark" lang="pt-BR">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Backtesting de Estratégias - B3</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <script>
+    tailwind.config = { darkMode: "class", theme: { extend: { colors: { primary: "#13ec6a", "background-dark": "#102217" }, fontFamily: { display: ["Manrope", "sans-serif"] } } } }
+  </script>
+  <style> body { min-height: max(884px, 100dvh); } .no-scrollbar::-webkit-scrollbar { display: none; } </style>
+</head>
+<body class="bg-background-dark font-display text-white min-h-screen pb-24">
+  <header class="sticky top-0 z-50 bg-background-dark/80 backdrop-blur-md border-b border-white/5">
+    <div class="flex items-center p-4 justify-between max-w-md mx-auto">
+      <a href="index.html" class="flex items-center gap-3"><span class="material-symbols-outlined cursor-pointer">arrow_back_ios</span><h1 class="text-lg font-bold tracking-tight">Backtesting</h1></a>
+      <div class="flex items-center gap-2">
+        <button class="p-2 hover:bg-white/10 rounded-full"><span class="material-symbols-outlined">tune</span></button>
+        <button class="p-2 hover:bg-white/10 rounded-full"><span class="material-symbols-outlined">share</span></button>
+      </div>
+    </div>
+    <div class="flex overflow-x-auto no-scrollbar px-4 gap-6 border-t border-white/5 max-w-md mx-auto">
+      <button type="button" class="bt-tab flex flex-col items-center border-b-2 border-primary text-primary pb-3 pt-4 whitespace-nowrap text-xs font-bold uppercase tracking-wider" data-strategy="Venda Coberta">Venda Coberta</button>
+      <button type="button" class="bt-tab flex flex-col items-center border-b-2 border-transparent text-slate-500 pb-3 pt-4 whitespace-nowrap text-xs font-bold uppercase tracking-wider" data-strategy="Iron Condor">Iron Condor</button>
+      <button type="button" class="bt-tab flex flex-col items-center border-b-2 border-transparent text-slate-500 pb-3 pt-4 whitespace-nowrap text-xs font-bold uppercase tracking-wider" data-strategy="Trava de Alta">Trava de Alta</button>
+      <button type="button" class="bt-tab flex flex-col items-center border-b-2 border-transparent text-slate-500 pb-3 pt-4 whitespace-nowrap text-xs font-bold uppercase tracking-wider" data-strategy="Straddle">Straddle</button>
+    </div>
+  </header>
+  <main class="max-w-md mx-auto pb-24">
+    <div class="px-4 py-4">
+      <div class="flex h-11 items-center justify-center rounded-xl bg-white/5 p-1">
+        <label class="flex cursor-pointer h-full grow items-center justify-center rounded-lg px-2 tf-btn text-slate-400 text-sm font-semibold has-[:checked]:bg-primary/20 has-[:checked]:text-primary" data-tf="6M"><span class="truncate">6 Meses</span><input class="sr-only" name="timeframe" type="radio" value="6M"/></label>
+        <label class="flex cursor-pointer h-full grow items-center justify-center rounded-lg px-2 tf-btn text-slate-400 text-sm font-semibold has-[:checked]:bg-primary/20 has-[:checked]:text-primary" data-tf="2Y"><span class="truncate">2 Anos</span><input checked class="sr-only" name="timeframe" type="radio" value="2Y"/></label>
+        <label class="flex cursor-pointer h-full grow items-center justify-center rounded-lg px-2 tf-btn text-slate-400 text-sm font-semibold has-[:checked]:bg-primary/20 has-[:checked]:text-primary" data-tf="Max"><span class="truncate">Máx</span><input class="sr-only" name="timeframe" type="radio" value="Max"/></label>
+      </div>
+    </div>
+    <section class="px-4 py-2">
+      <div id="hero-chart" class="bg-white/5 rounded-2xl p-5 border border-white/5">
+        <div class="flex flex-col gap-1 mb-6">
+          <div class="flex items-center justify-between">
+            <p class="text-slate-500 text-xs font-bold uppercase tracking-widest">Patrimônio vs IBOV</p>
+            <span id="bt-variacao" class="flex items-center gap-1 text-primary text-sm font-bold">--</span>
+          </div>
+          <div class="flex items-baseline gap-2">
+            <h2 id="bt-patrimonio" class="text-3xl font-extrabold tracking-tight">--</h2>
+            <span id="bt-periodo" class="text-slate-500 text-sm font-medium">--</span>
+          </div>
+        </div>
+        <div class="relative h-[200px] w-full">
+          <svg class="w-full h-full" preserveAspectRatio="none" viewBox="0 0 400 150" id="bt-svg"></svg>
+        </div>
+      </div>
+    </section>
+    <section class="grid grid-cols-2 gap-4 px-4 py-6">
+      <div class="bg-white/5 p-4 rounded-xl border border-white/5">
+        <div class="flex items-center gap-2 mb-2"><span class="material-symbols-outlined text-primary text-lg">check_circle</span><p class="text-slate-500 text-[10px] font-bold uppercase tracking-wider">Taxa de Acerto</p></div>
+        <p id="metric-acerto" class="text-2xl font-bold tracking-tight">--</p>
+      </div>
+      <div class="bg-white/5 p-4 rounded-xl border border-white/5">
+        <div class="flex items-center gap-2 mb-2"><span class="material-symbols-outlined text-primary text-lg">analytics</span><p class="text-slate-500 text-[10px] font-bold uppercase tracking-wider">Profit Factor</p></div>
+        <p id="metric-pf" class="text-2xl font-bold tracking-tight">--</p>
+      </div>
+      <div class="bg-white/5 p-4 rounded-xl border border-white/5">
+        <div class="flex items-center gap-2 mb-2"><span class="material-symbols-outlined text-red-500 text-lg">trending_down</span><p class="text-slate-500 text-[10px] font-bold uppercase tracking-wider">Max Drawdown</p></div>
+        <p id="metric-dd" class="text-2xl font-bold tracking-tight text-red-400">--</p>
+      </div>
+      <div class="bg-white/5 p-4 rounded-xl border border-white/5">
+        <div class="flex items-center gap-2 mb-2"><span class="material-symbols-outlined text-blue-400 text-lg">equalizer</span><p class="text-slate-500 text-[10px] font-bold uppercase tracking-wider">Índice Sharpe</p></div>
+        <p id="metric-sharpe" class="text-2xl font-bold tracking-tight">--</p>
+      </div>
+    </section>
+    <section class="px-4 py-2">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-sm font-bold uppercase tracking-widest text-slate-400">Operações Recentes</h3>
+      </div>
+      <div class="space-y-3" id="trades-list"></div>
+    </section>
+  </main>
+  <footer class="fixed bottom-0 left-0 right-0 p-4 pb-8 bg-gradient-to-t from-background-dark via-background-dark to-transparent">
+    <div class="max-w-md mx-auto">
+      <button id="btn-run" class="w-full bg-primary text-background-dark font-extrabold text-base py-4 rounded-2xl shadow-lg flex items-center justify-center gap-2">
+        <span class="material-symbols-outlined">refresh</span> EXECUTAR NOVO BACKTEST
+      </button>
+    </div>
+  </footer>
+  <div id="nav-placeholder"></div>
+  <script src="js/api.js"></script>
+  <script>
+    document.getElementById('nav-placeholder').innerHTML = nav();
+    let currentStrategy = 'Venda Coberta';
+    let currentTf = '2Y';
+
+    function getTf() { const r = document.querySelector('input[name="timeframe"]:checked'); return r ? r.value : '2Y'; }
+
+    async function runBacktest() {
+      try {
+        const r = await api('/api/backtest/run', { method: 'POST', body: JSON.stringify({ strategy: currentStrategy, timeframe: currentTf }) });
+        const d = r.data;
+        document.getElementById('bt-variacao').innerHTML = '<span class="material-symbols-outlined text-sm">trending_up</span> +' + (d.variacao || 42.5) + '%';
+        document.getElementById('bt-patrimonio').textContent = 'R$ ' + (d.patrimonioFinal || 0).toLocaleString('pt-BR');
+        document.getElementById('bt-periodo').textContent = (d.labels && d.labels[0] && d.labels[d.labels.length - 1]) ? d.labels[0] + ' - ' + d.labels[d.labels.length - 1] : 'Jan 22 - Jan 24';
+        const m = d.metrics || {};
+        document.getElementById('metric-acerto').textContent = (m.taxaAcerto != null ? m.taxaAcerto + '%' : '--');
+        document.getElementById('metric-pf').textContent = m.profitFactor != null ? m.profitFactor : '--';
+        document.getElementById('metric-dd').textContent = (m.maxDrawdown != null ? m.maxDrawdown + '%' : '--');
+        document.getElementById('metric-sharpe').textContent = m.sharpe != null ? m.sharpe : '--';
+        const pts = d.chartPoints || [100, 98, 102, 105, 108, 112, 115, 118, 125, 130, 142.5];
+        const w = 400, h = 150;
+        let pathD = 'M0,' + (h - (pts[0] / 150 * h));
+        pts.forEach((v, i) => { if (i > 0) pathD += ' L' + (i / (pts.length - 1) * w) + ',' + (h - (v / 150 * h)); });
+        document.getElementById('bt-svg').innerHTML = `
+          <defs><linearGradient id="chartGradient" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#13ec6a" stop-opacity="0.3"/><stop offset="100%" stop-color="#13ec6a" stop-opacity="0"/></linearGradient></defs>
+          <path d="${pathD + ' L400,' + h + ' L0,' + h + ' Z'}" fill="url(#chartGradient)"/>
+          <path d="${pathD}" fill="none" stroke="#13ec6a" stroke-linecap="round" stroke-width="3"/>
+        `;
+        const trades = d.trades || [];
+        document.getElementById('trades-list').innerHTML = trades.map(t => `
+          <div class="flex items-center justify-between p-4 bg-white/5 rounded-xl border border-white/5">
+            <div class="flex items-center gap-4">
+              <div class="w-10 h-10 rounded-full ${t.pnl >= 0 ? 'bg-primary/10' : 'bg-red-500/10'} flex items-center justify-center">
+                <span class="material-symbols-outlined ${t.pnl >= 0 ? 'text-primary' : 'text-red-500'}">sell</span>
+              </div>
+              <div>
+                <p class="font-bold text-sm">${t.symbol || ''} (${t.strategy || ''})</p>
+                <p class="text-xs text-slate-500">Entrada: ${t.entry || ''} • Saída: ${t.exit || ''}</p>
+              </div>
+            </div>
+            <div class="text-right">
+              <p class="font-bold ${t.pnl >= 0 ? 'text-primary' : 'text-red-400'} text-sm">${t.pnl >= 0 ? '+' : ''}R$ ${t.pnl}</p>
+              <p class="text-[10px] font-bold ${t.pnl >= 0 ? 'bg-primary/20 text-primary' : 'bg-red-500/20 text-red-400'} px-1.5 rounded uppercase">${(t.pct >= 0 ? '+' : '') + t.pct}%</p>
+            </div>
+          </div>
+        `).join('');
+      } catch (e) {
+        document.getElementById('bt-patrimonio').textContent = 'Erro ao carregar';
+      }
+    }
+
+    document.querySelectorAll('.bt-tab').forEach(btn => {
+      btn.onclick = () => {
+        document.querySelectorAll('.bt-tab').forEach(b => { b.classList.remove('border-primary', 'text-primary'); b.classList.add('border-transparent', 'text-slate-500'); });
+        btn.classList.add('border-primary', 'text-primary'); btn.classList.remove('border-transparent', 'text-slate-500');
+        currentStrategy = btn.dataset.strategy;
+        runBacktest();
+      };
+    });
+    document.querySelectorAll('.tf-btn').forEach(lbl => {
+      lbl.onclick = () => { currentTf = getTf(); runBacktest(); };
+    });
+    document.getElementById('btn-run').onclick = runBacktest;
+    runBacktest();
+  </script>
+</body>
+</html>

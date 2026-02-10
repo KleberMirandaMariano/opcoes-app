@@ -1,0 +1,7 @@
+# Variáveis de ambiente (nunca commitar tokens)
+.env
+backend/.env
+*.env.local
+
+# Dependências e build
+node_modules/

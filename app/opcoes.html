@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html class="dark" lang="pt-BR">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Grade de Opções</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <script>
+    tailwind.config = { darkMode: "class", theme: { extend: { colors: { primary: "#13ec6a", "background-dark": "#102217", danger: "#ff4d4d" }, fontFamily: { display: ["Manrope", "sans-serif"] } } } }
+  </script>
+  <style>
+    .tabular-nums { font-variant-numeric: tabular-nums; }
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    body { min-height: max(884px, 100dvh); }
+  </style>
+</head>
+<body class="bg-background-dark font-display text-white antialiased">
+  <div class="relative flex min-h-screen w-full flex-col overflow-hidden max-w-md mx-auto border-x border-white/10 pb-24">
+    <header class="bg-background-dark border-b border-white/10 z-20">
+      <div class="flex items-center p-4 pb-2 justify-between">
+        <a href="ativo.html?ticker=TICKER_PLACEHOLDER" class="flex size-10 shrink-0 items-center justify-start">
+          <span class="material-symbols-outlined cursor-pointer">arrow_back_ios</span>
+        </a>
+        <div class="flex-1 text-center">
+          <h1 id="header-ticker" class="text-lg font-extrabold leading-tight tracking-tight">--</h1>
+          <p id="header-price" class="text-primary text-sm font-bold">--</p>
+        </div>
+        <button class="flex w-10 items-center justify-end h-10 w-10"><span class="material-symbols-outlined">search</span></button>
+      </div>
+      <div class="px-4 py-3">
+        <select id="expiration" class="w-full appearance-none rounded-lg text-white border border-white/20 bg-white/5 focus:ring-1 focus:ring-primary h-12 pl-4 pr-10 text-sm font-semibold tracking-wide cursor-pointer outline-none">
+          <!-- preenchido via API -->
+        </select>
+      </div>
+      <div class="grid grid-cols-7 text-[9px] uppercase font-bold text-white/40 bg-white/5 py-1.5 px-2 text-center border-b border-white/10">
+        <div class="col-span-1">Últ.</div>
+        <div class="col-span-1">Var%</div>
+        <div class="col-span-1">Vol.</div>
+        <div class="col-span-1 text-white border-x border-white/10">Strike</div>
+        <div class="col-span-1">Vol.</div>
+        <div class="col-span-1">Var%</div>
+        <div class="col-span-1">Últ.</div>
+      </div>
+    </header>
+    <main class="flex-1 overflow-y-auto hide-scrollbar" id="chain-container">
+      <p class="p-4 text-slate-500">Carregando grade...</p>
+    </main>
+    <footer class="bg-background-dark border-t border-white/10 p-3 flex gap-2 overflow-x-auto hide-scrollbar">
+      <button class="flex h-9 shrink-0 items-center justify-center rounded-full bg-primary px-5 text-background-dark text-xs font-bold">Todos</button>
+      <button class="flex h-9 shrink-0 items-center justify-center rounded-full bg-white/10 px-5 text-white text-xs font-semibold">ITM</button>
+      <button class="flex h-9 shrink-0 items-center justify-center rounded-full bg-white/10 px-5 text-white text-xs font-semibold">OTM</button>
+    </footer>
+  </div>
+  <div id="nav-placeholder"></div>
+  <script src="js/api.js"></script>
+  <script>
+    document.getElementById('nav-placeholder').innerHTML = nav();
+    const q = getQuery();
+    const ticker = (q.ticker || 'PETR4').toUpperCase();
+    const fmt = (n) => Number(n).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    async function load(expiration) {
+      try {
+        const r = await api('/api/options/' + ticker + '/chain?expiration=' + (expiration || 'nov24'));
+        const d = r.data;
+        document.getElementById('header-ticker').textContent = d.ticker;
+        document.getElementById('header-price').textContent = 'R$ ' + fmt(d.underlyingPrice) + ' (' + (d.underlyingPrice > 0 ? '+' : '') + '1,20%)';
+        document.querySelector('a[href="ativo.html?ticker=TICKER_PLACEHOLDER"]').href = 'ativo.html?ticker=' + d.ticker;
+
+        const sel = document.getElementById('expiration');
+        sel.innerHTML = (d.expirations || []).map(e => `<option value="${e.value}" ${e.value === (d.expiration?.value || 'nov24') ? 'selected' : ''}>${e.label}</option>`).join('');
+        sel.onchange = () => load(sel.value);
+
+        const spot = d.underlyingPrice;
+        const chain = d.chain || [];
+        let html = '';
+        let atmInserted = false;
+        chain.forEach(row => {
+          if (!atmInserted && row.strike >= spot) {
+            html += `<div class="w-full bg-primary/20 py-1 px-4 text-[9px] font-bold text-primary flex justify-between items-center uppercase tracking-widest"><span>At the money</span><span>${d.ticker} @ ${fmt(spot)}</span></div>`;
+            atmInserted = true;
+          }
+          const callITM = row.strike < spot;
+          const putITM = row.strike > spot;
+          html += `
+            <div class="grid grid-cols-7 text-[11px] font-medium border-b border-white/5 tabular-nums">
+              <div class="col-span-3 grid grid-cols-3 py-3 px-1 ${callITM ? 'bg-primary/10' : ''}">
+                <div class="text-white text-center">${fmt(row.call.last)}</div>
+                <div class="text-center ${row.call.varPct >= 0 ? 'text-primary' : 'text-danger'}">${row.call.varPct}%</div>
+                <div class="text-white/60 text-center">${(row.call.volume/1000).toFixed(0)}k</div>
+              </div>
+              <div class="col-span-1 flex items-center justify-center bg-white/5 font-bold text-white border-x border-white/10 py-3">${fmt(row.strike)}</div>
+              <div class="col-span-3 grid grid-cols-3 py-3 px-1 ${putITM ? 'bg-blue-500/10' : ''}">
+                <div class="text-white/60 text-center">${(row.put.volume/1000).toFixed(0)}k</div>
+                <div class="text-center ${row.put.varPct >= 0 ? 'text-primary' : 'text-danger'}">${row.put.varPct}%</div>
+                <div class="text-white text-center">${fmt(row.put.last)}</div>
+              </div>
+            </div>
+          `;
+        });
+        document.getElementById('chain-container').innerHTML = html || '<p class="p-4 text-slate-500">Nenhum strike disponível.</p>';
+      } catch (e) {
+        document.getElementById('chain-container').innerHTML = '<p class="p-4 text-red-400">Erro ao carregar grade. Servidor ativo?</p>';
+      }
+    }
+    load();
+  </script>
+</body>
+</html>

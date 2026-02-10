@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html class="dark" lang="pt-BR">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Detalhes da Ação</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <script>
+    tailwind.config = { darkMode: "class", theme: { extend: { colors: { primary: "#13ec6a", "background-dark": "#102217" }, fontFamily: { display: ["Manrope", "sans-serif"] } } } }
+  </script>
+  <style>
+    body { font-family: 'Manrope', sans-serif; }
+    .chart-gradient { background: linear-gradient(180deg, rgba(19, 236, 106, 0.15) 0%, rgba(19, 236, 106, 0) 100%); }
+    body { min-height: max(884px, 100dvh); }
+  </style>
+</head>
+<body class="bg-background-dark text-white min-h-screen flex flex-col font-display">
+  <header class="sticky top-0 z-50 bg-background-dark/80 backdrop-blur-md border-b border-white/10">
+    <div class="flex items-center justify-between p-4 max-w-md mx-auto w-full">
+      <a href="ativos.html" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors">
+        <span class="material-symbols-outlined text-2xl">arrow_back_ios_new</span>
+      </a>
+      <div class="text-center">
+        <h1 id="header-ticker" class="text-lg font-bold tracking-tight">--</h1>
+        <p id="header-name" class="text-[10px] uppercase tracking-widest text-primary/70 font-bold">B3</p>
+      </div>
+      <button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors">
+        <span class="material-symbols-outlined text-2xl">star</span>
+      </button>
+    </div>
+  </header>
+  <main class="flex-1 w-full max-w-md mx-auto pb-32">
+    <section class="p-6 pb-2">
+      <div class="flex justify-between items-start mb-4">
+        <div class="flex flex-col gap-1">
+          <div id="logo-box" class="w-14 h-14 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center p-2 mb-2">
+            <span class="material-symbols-outlined text-2xl text-slate-400">show_chart</span>
+          </div>
+          <h2 id="stock-name" class="text-2xl font-extrabold tracking-tight">--</h2>
+          <p id="stock-short" class="text-slate-400 font-medium">--</p>
+        </div>
+        <div class="text-right">
+          <p id="stock-price" class="text-3xl font-extrabold tracking-tighter">--</p>
+          <div id="stock-change" class="flex items-center justify-end text-primary gap-1 font-bold">--</div>
+        </div>
+      </div>
+    </section>
+    <section class="px-6 py-4">
+      <div class="flex bg-white/5 rounded-xl p-1 gap-1">
+        <button class="flex-1 py-2 text-xs font-bold rounded-lg bg-primary text-background-dark shadow-sm">1D</button>
+        <button class="flex-1 py-2 text-xs font-bold rounded-lg hover:bg-white/10 text-slate-400">5D</button>
+        <button class="flex-1 py-2 text-xs font-bold rounded-lg hover:bg-white/10 text-slate-400">1M</button>
+        <button class="flex-1 py-2 text-xs font-bold rounded-lg hover:bg-white/10 text-slate-400">6M</button>
+        <button class="flex-1 py-2 text-xs font-bold rounded-lg hover:bg-white/10 text-slate-400">1Y</button>
+        <button class="flex-1 py-2 text-xs font-bold rounded-lg hover:bg-white/10 text-slate-400">MAX</button>
+      </div>
+    </section>
+    <section class="px-4 py-2 relative">
+      <div class="w-full h-64 relative">
+        <svg class="w-full h-full" viewBox="0 0 400 150" id="chart-svg"></svg>
+      </div>
+    </section>
+    <section class="px-6 py-8">
+      <h3 class="text-sm font-bold uppercase tracking-widest text-slate-400 mb-4 flex items-center gap-2">
+        <span class="material-symbols-outlined text-lg">analytics</span> Indicadores Fundamentalistas
+      </h3>
+      <div class="grid grid-cols-2 gap-4" id="fundamentals-grid"></div>
+    </section>
+    <section class="px-6 py-4">
+      <h3 class="text-sm font-bold uppercase tracking-widest text-slate-400 mb-4 flex items-center gap-2">
+        <span class="material-symbols-outlined text-lg">info</span> Sobre a Companhia
+      </h3>
+      <div class="bg-white/5 border border-white/10 p-5 rounded-2xl leading-relaxed">
+        <p id="about-text" class="text-sm text-slate-300 mb-3">Carregando...</p>
+      </div>
+    </section>
+  </main>
+  <footer class="fixed bottom-0 left-0 right-0 bg-background-dark/80 backdrop-blur-xl border-t border-white/10 p-6 z-50">
+    <div class="max-w-md mx-auto flex gap-4">
+      <button class="w-14 h-14 flex items-center justify-center border border-white/10 rounded-2xl hover:bg-white/5 transition-colors">
+        <span class="material-symbols-outlined text-2xl">notifications</span>
+      </button>
+      <a id="btn-opcoes" href="#" class="flex-1 h-14 bg-primary text-background-dark font-extrabold rounded-2xl shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+        <span class="material-symbols-outlined font-bold">add_circle</span> VER GRADE DE OPCÕES
+      </a>
+    </div>
+  </footer>
+  <script src="js/api.js"></script>
+  <script>
+    document.getElementById('nav-placeholder') && (document.getElementById('nav-placeholder').innerHTML = nav());
+    const q = getQuery();
+    const ticker = (q.ticker || 'PETR4').toUpperCase();
+
+    function pathFromPoints(points) {
+      if (!points || points.length < 2) return '';
+      const min = Math.min(...points);
+      const max = Math.max(...points);
+      const range = max - min || 1;
+      const w = 400, h = 150;
+      let d = `M0,${h - ((points[0] - min) / range) * (h - 20)}`;
+      points.forEach((v, i) => {
+        if (i === 0) return;
+        const x = (i / (points.length - 1)) * w;
+        const y = h - ((v - min) / range) * (h - 20);
+        d += ` L${x},${y}`;
+      });
+      d += ` L${w},${h} L0,${h} Z`;
+      return d;
+    }
+
+    async function load() {
+      try {
+        const [stockRes, chartRes] = await Promise.all([
+          api('/api/stocks/' + ticker),
+          api('/api/stocks/' + ticker + '/chart?range=1d')
+        ]);
+        const s = stockRes.data;
+        document.getElementById('header-ticker').textContent = s.ticker;
+        document.getElementById('header-name').textContent = 'B3 • ' + (s.shortName || s.name);
+        document.getElementById('stock-name').textContent = s.name;
+        document.getElementById('stock-short').textContent = s.shortName || s.ticker;
+        document.getElementById('stock-price').textContent = 'R$ ' + Number(s.price).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const ch = s.change >= 0 ? 'text-primary' : 'text-red-400';
+        document.getElementById('stock-change').innerHTML = `<span class="material-symbols-outlined text-sm">trending_${s.change >= 0 ? 'up' : 'down'}</span><span>${(s.change >= 0 ? '+' : '') + s.change.toFixed(2)}%</span><span class="text-xs font-medium text-slate-500 ml-1">(R$ ${(s.changeValue || 0).toFixed(2)})</span>`;
+        document.getElementById('stock-change').className = 'flex items-center justify-end gap-1 font-bold ' + ch;
+
+        if (s.logo) {
+          document.getElementById('logo-box').innerHTML = '<img alt="Logo" class="w-full h-full object-contain" src="' + s.logo + '"/>';
+        }
+        document.getElementById('about-text').textContent = s.about || 'Informações não disponíveis.';
+
+        const points = chartRes.data?.points || [];
+        const lineD = pathFromPoints(points);
+        const areaD = lineD;
+        document.getElementById('chart-svg').innerHTML = `
+          <defs><linearGradient id="chartGradient" x1="0%" x2="0%" y1="0%" y2="100%"><stop offset="0%" style="stop-color:#13ec6a;stop-opacity:0.3"></stop><stop offset="100%" style="stop-color:#13ec6a;stop-opacity:0"></stop></linearGradient></defs>
+          <path d="${areaD}" fill="url(#chartGradient)"></path>
+          <path d="${lineD.replace(/ L\d+,\d+ Z$/, '').replace(' Z', '')}" fill="none" stroke="#13ec6a" stroke-linecap="round" stroke-width="3"></path>
+          <circle cx="400" cy="${points.length ? 20 : 75}" fill="#13ec6a" r="4"></circle>
+        `;
+
+        const f = s.fundamentals || {};
+        document.getElementById('fundamentals-grid').innerHTML = [
+          { label: 'P/L', value: f.pl },
+          { label: 'Div. Yield', value: f.dy ? f.dy + '%' : '-', cls: 'text-primary' },
+          { label: 'ROE', value: f.roe ? f.roe + '%' : '-' },
+          { label: 'P/VP', value: f.pvp }
+        ].map(x => `<div class="bg-white/5 border border-white/10 p-4 rounded-2xl"><p class="text-xs text-slate-500 mb-1">${x.label}</p><p class="text-xl font-extrabold ${x.cls || ''}">${x.value || '-'}</p></div>`).join('');
+
+        document.getElementById('btn-opcoes').href = 'opcoes.html?ticker=' + ticker;
+      } catch (e) {
+        document.getElementById('stock-name').textContent = 'Ativo não encontrado';
+        document.getElementById('about-text').textContent = 'Verifique o ticker ou a conexão com o servidor.';
+      }
+    }
+    load();
+  </script>
+</body>
+</html>

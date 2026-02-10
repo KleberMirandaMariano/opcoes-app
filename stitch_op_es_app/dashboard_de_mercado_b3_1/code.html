@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html class="dark" lang="pt-br"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Dashboard Mercado B3 (Dark)</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#00FF7F", // Vibrant Spring Green
+                        "danger": "#FF3B30", // Vibrant iOS Red
+                        "background-dark": "#121212", // Deep Charcoal
+                        "card-dark": "#1C1C1E", // iOS Dark Secondary
+                        "surface-dark": "#2C2C2E", // iOS Dark Tertiary
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "0.75rem",
+                        "xl": "1rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        @layer base {
+            body { 
+                font-family: 'Manrope', sans-serif;
+                @apply bg-background-dark text-slate-100;
+            }
+        }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .grid-line {
+            stroke: rgba(255, 255, 255, 0.05);
+            stroke-width: 1;
+        }
+        .data-line {
+            stroke: #00FF7F;
+            stroke-width: 2.5;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="min-h-screen pb-24">
+<header class="sticky top-0 z-50 bg-background-dark/90 backdrop-blur-xl px-4 pt-10 pb-4 flex items-center justify-between border-b border-white/5">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-dark flex items-center justify-center overflow-hidden border border-white/10">
+<span class="material-symbols-outlined text-slate-400">person</span>
+</div>
+<div>
+<h1 class="text-base font-bold tracking-tight">Mercado B3</h1>
+<div class="flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+<p class="text-[10px] text-slate-400 uppercase tracking-widest font-extrabold">Mercado Aberto</p>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-2.5 bg-surface-dark rounded-full transition-colors active:scale-95">
+<span class="material-symbols-outlined text-2xl">search</span>
+</button>
+<button class="p-2.5 bg-surface-dark rounded-full transition-colors relative active:scale-95">
+<span class="material-symbols-outlined text-2xl">notifications</span>
+<span class="absolute top-2.5 right-2.5 w-2 h-2 bg-primary rounded-full border-2 border-background-dark"></span>
+</button>
+</div>
+</header>
+<main class="max-w-md mx-auto">
+<section class="p-4">
+<div class="bg-card-dark rounded-xl p-5 border border-white/5 shadow-2xl relative overflow-hidden">
+<div class="flex justify-between items-start mb-2">
+<div>
+<p class="text-slate-400 text-xs font-semibold mb-0.5">IBOVESPA</p>
+<h2 class="text-3xl font-extrabold tracking-tight">128.530<span class="text-slate-500 text-lg font-medium ml-1">pts</span></h2>
+</div>
+<div class="flex flex-col items-end">
+<span class="text-primary font-bold text-lg">+1,24%</span>
+<span class="text-slate-500 text-[10px] font-bold">+1.580 pts hoje</span>
+</div>
+</div>
+<div class="h-32 w-full mt-4 relative">
+<svg class="w-full h-full" preserveAspectRatio="none" viewBox="0 0 400 120">
+<line class="grid-line" x1="0" x2="400" y1="20" y2="20"></line>
+<line class="grid-line" x1="0" x2="400" y1="50" y2="50"></line>
+<line class="grid-line" x1="0" x2="400" y1="80" y2="80"></line>
+<line class="grid-line" x1="0" x2="400" y1="110" y2="110"></line>
+<defs>
+<linearGradient id="chartGradient" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#00FF7F" stop-opacity="0.2"></stop>
+<stop offset="100%" stop-color="#00FF7F" stop-opacity="0"></stop>
+</linearGradient>
+</defs>
+<path d="M0,120 L0,90 L40,85 L80,100 L120,70 L160,75 L200,45 L240,55 L280,25 L320,35 L360,15 L400,10 L400,120 Z" fill="url(#chartGradient)"></path>
+<path class="data-line" d="M0,90 L40,85 L80,100 L120,70 L160,75 L200,45 L240,55 L280,25 L320,35 L360,15 L400,10"></path>
+<circle cx="400" cy="10" fill="#00FF7F" r="4"></circle>
+</svg>
+</div>
+<div class="flex justify-between mt-3">
+<div class="text-[10px] text-slate-500 font-bold">10:00</div>
+<div class="text-[10px] text-slate-500 font-bold">12:30</div>
+<div class="text-[10px] text-slate-500 font-bold">15:00</div>
+<div class="text-[10px] text-slate-500 font-bold">17:00</div>
+</div>
+</div>
+</section>
+<section class="mb-6">
+<div class="flex overflow-x-auto hide-scrollbar gap-3 px-4">
+<div class="flex-none bg-card-dark border border-white/5 rounded-xl p-4 min-w-[130px]">
+<p class="text-[10px] text-slate-400 font-bold uppercase mb-1">IFIX</p>
+<p class="text-base font-bold">3.342,10</p>
+<p class="text-xs text-primary font-bold">+0,15%</p>
+</div>
+<div class="flex-none bg-card-dark border border-white/5 rounded-xl p-4 min-w-[130px]">
+<p class="text-[10px] text-slate-400 font-bold uppercase mb-1">SMLL</p>
+<p class="text-base font-bold">2.180,45</p>
+<p class="text-xs text-danger font-bold">-0,82%</p>
+</div>
+<div class="flex-none bg-card-dark border border-white/5 rounded-xl p-4 min-w-[130px]">
+<p class="text-[10px] text-slate-400 font-bold uppercase mb-1">DÓLAR</p>
+<p class="text-base font-bold">R$ 4,92</p>
+<p class="text-xs text-danger font-bold">-0,12%</p>
+</div>
+<div class="flex-none bg-card-dark border border-white/5 rounded-xl p-4 min-w-[130px]">
+<p class="text-[10px] text-slate-400 font-bold uppercase mb-1">BTC / BRL</p>
+<p class="text-base font-bold">R$ 254k</p>
+<p class="text-xs text-primary font-bold">+2,41%</p>
+</div>
+</div>
+</section>
+<section class="px-4 mb-8">
+<div class="flex gap-6 border-b border-white/5 mb-4">
+<button class="pb-3 border-b-2 border-primary text-sm font-bold text-primary">Altas</button>
+<button class="pb-3 border-b-2 border-transparent text-sm font-bold text-slate-500 hover:text-slate-300 transition-colors">Baixas</button>
+<button class="pb-3 border-b-2 border-transparent text-sm font-bold text-slate-500 hover:text-slate-300 transition-colors">Volume</button>
+</div>
+<div class="space-y-2">
+<div class="bg-card-dark/50 hover:bg-card-dark border border-white/5 rounded-xl p-4 flex items-center justify-between transition-colors">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-lg bg-surface-dark flex items-center justify-center font-bold text-xs text-slate-300 border border-white/10">PETR4</div>
+<div>
+<p class="font-bold text-sm">Petrobras PN</p>
+<p class="text-[10px] text-slate-500 font-semibold">Petróleo, Gás e Biocombustíveis</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-bold text-sm">R$ 42,15</p>
+<p class="text-xs text-primary font-extrabold">+3,45%</p>
+</div>
+</div>
+<div class="bg-card-dark/50 hover:bg-card-dark border border-white/5 rounded-xl p-4 flex items-center justify-between transition-colors">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-lg bg-surface-dark flex items-center justify-center font-bold text-xs text-slate-300 border border-white/10">VALE3</div>
+<div>
+<p class="font-bold text-sm">Vale ON</p>
+<p class="text-[10px] text-slate-500 font-semibold">Mineração</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-bold text-sm">R$ 67,80</p>
+<p class="text-xs text-primary font-extrabold">+2,10%</p>
+</div>
+</div>
+<div class="bg-card-dark/50 hover:bg-card-dark border border-white/5 rounded-xl p-4 flex items-center justify-between transition-colors">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-lg bg-surface-dark flex items-center justify-center font-bold text-xs text-slate-300 border border-white/10">ITUB4</div>
+<div>
+<p class="font-bold text-sm">Itaú Unibanco</p>
+<p class="text-[10px] text-slate-500 font-semibold">Intermediários Financeiros</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-bold text-sm">R$ 34,22</p>
+<p class="text-xs text-primary font-extrabold">+1,85%</p>
+</div>
+</div>
+</div>
+</section>
+<section class="px-4 pb-12">
+<div class="flex items-center justify-between mb-5">
+<h3 class="text-lg font-bold tracking-tight">Radar do Mercado</h3>
+<button class="text-xs font-bold text-primary flex items-center gap-1">
+                    Ver todas <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+<div class="space-y-6">
+<div class="flex gap-4 group cursor-pointer">
+<div class="w-20 h-20 rounded-xl bg-surface-dark flex-shrink-0 overflow-hidden border border-white/10">
+<div class="w-full h-full bg-cover bg-center transition-transform duration-500 group-hover:scale-110" data-alt="Prédio da bolsa de valores de São Paulo B3" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuANla2DB9EFL_55_MZgU6AMWrXo97KOWfUiTnrnvnlXHIoXVFBBV6iOY0J3WkNV2YHzrA9Ja-fXm0e35vJ0-R4MfI6usqUpV7JIPSR4Tza2bIKIgZR_63ZLHXej4041ABSk6YTz_KlFH9elSK_A4ceCib7qC2FdoavpeBX00Oi488Eu5R1oJc1pbOBSyaJR8k8Q4iIgn1KCW0iZWoly-iclqXBxAvqDSVWlDP78cqHCJK-Fx2wwpTP-jpdFBUmdePijFl6WAuGPqZY6');"></div>
+</div>
+<div class="flex flex-col justify-between py-0.5">
+<div>
+<p class="text-[10px] text-primary font-extrabold uppercase tracking-widest mb-1">Política Monetária</p>
+<h4 class="text-sm font-bold leading-tight line-clamp-2 text-slate-100 group-hover:text-primary transition-colors">Copom mantém taxa Selic e sinaliza cautela com cenário fiscal.</h4>
+</div>
+<p class="text-[10px] text-slate-500 font-bold">15m atrás • InfoMoney</p>
+</div>
+</div>
+<div class="flex gap-4 group cursor-pointer">
+<div class="w-20 h-20 rounded-xl bg-surface-dark flex-shrink-0 overflow-hidden border border-white/10">
+<div class="w-full h-full bg-cover bg-center transition-transform duration-500 group-hover:scale-110" data-alt="Notas de Real brasileiro e moedas sobre mesa" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBC8peXJc1ESBXwUv1-92xHmHMPNjKR0lb3LNYwBKOCy0yO7Xx6ixdbgR9zeFp72cl1bnOTQwxRaHzcLH82e5r8Rje0qvimazII-cZJ1ru3Vfqy2tTcEfzvmXKIPYyl04XMYG-9j7s7r2hEnx2a3D4a3xjb_1EFazYkrA_lo4OOkQwMZaxbzAKJGepArEy-8ZDCxUyvJUSqaXQ1AHnUxZftIIfCQuChXvpYXVAI_NfRUfG9a6gu5P2u2Dx7mvL962U0PtoK2-0DAynw');"></div>
+</div>
+<div class="flex flex-col justify-between py-0.5">
+<div>
+<p class="text-[10px] text-primary font-extrabold uppercase tracking-widest mb-1">Corporativo</p>
+<h4 class="text-sm font-bold leading-tight line-clamp-2 text-slate-100 group-hover:text-primary transition-colors">Petrobras anuncia dividendos recordes após balanço do 4T.</h4>
+</div>
+<p class="text-[10px] text-slate-500 font-bold">1h atrás • Valor Econômico</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<nav class="fixed bottom-0 left-0 right-0 z-50 bg-background-dark/80 backdrop-blur-2xl border-t border-white/5 px-6 pt-3 pb-8 flex justify-between items-center max-w-md mx-auto">
+<button class="flex flex-col items-center gap-1.5 text-primary">
+<span class="material-symbols-outlined font-variation-fill-1 text-[26px]">home</span>
+<span class="text-[10px] font-extrabold">Início</span>
+</button>
+<button class="flex flex-col items-center gap-1.5 text-slate-500 hover:text-slate-300 transition-colors">
+<span class="material-symbols-outlined text-[26px]">analytics</span>
+<span class="text-[10px] font-extrabold">Ativos</span>
+</button>
+<button class="flex flex-col items-center gap-1.5 text-slate-500 hover:text-slate-300 transition-colors">
+<span class="material-symbols-outlined text-[26px]">pie_chart</span>
+<span class="text-[10px] font-extrabold">Carteira</span>
+</button>
+<button class="flex flex-col items-center gap-1.5 text-slate-500 hover:text-slate-300 transition-colors">
+<span class="material-symbols-outlined text-[26px]">person</span>
+<span class="text-[10px] font-extrabold">Perfil</span>
+</button>
+</nav>
+<style>
+        .font-variation-fill-1 {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+
+</body></html>

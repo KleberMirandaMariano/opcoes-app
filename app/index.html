@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html class="dark" lang="pt-br">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard Mercado B3</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <script>
+    tailwind.config = { darkMode: "class", theme: { extend: { colors: { primary: "#00FF7F", danger: "#FF3B30", "background-dark": "#121212", "card-dark": "#1C1C1E", "surface-dark": "#2C2C2E" }, fontFamily: { display: ["Manrope", "sans-serif"] }, borderRadius: { DEFAULT: "0.5rem", lg: "0.75rem", xl: "1rem", full: "9999px" } } } }
+  </script>
+  <style>
+    body { font-family: 'Manrope', sans-serif; @apply bg-background-dark text-slate-100; }
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .grid-line { stroke: rgba(255,255,255,0.05); stroke-width: 1; }
+    .data-line { stroke: #00FF7F; stroke-width: 2.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    body { min-height: max(884px, 100dvh); }
+  </style>
+</head>
+<body class="min-h-screen pb-24">
+  <header class="sticky top-0 z-50 bg-background-dark/90 backdrop-blur-xl px-4 pt-10 pb-4 flex items-center justify-between border-b border-white/5">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-full bg-surface-dark flex items-center justify-center overflow-hidden border border-white/10">
+        <span class="material-symbols-outlined text-slate-400">person</span>
+      </div>
+      <div>
+        <h1 class="text-base font-bold tracking-tight">Mercado B3</h1>
+        <div class="flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+          <p class="text-[10px] text-slate-400 uppercase tracking-widest font-extrabold">Mercado Aberto</p>
+        </div>
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <button class="p-2.5 bg-surface-dark rounded-full transition-colors active:scale-95" onclick="location.href='ativos.html'">
+        <span class="material-symbols-outlined text-2xl">search</span>
+      </button>
+      <button class="p-2.5 bg-surface-dark rounded-full transition-colors relative active:scale-95">
+        <span class="material-symbols-outlined text-2xl">notifications</span>
+        <span class="absolute top-2.5 right-2.5 w-2 h-2 bg-primary rounded-full border-2 border-background-dark"></span>
+      </button>
+    </div>
+  </header>
+
+  <main class="max-w-md mx-auto">
+    <section class="p-4">
+      <div id="ibov-card" class="bg-card-dark rounded-xl p-5 border border-white/5 shadow-2xl relative overflow-hidden">
+        <div class="flex justify-between items-start mb-2">
+          <div>
+            <p class="text-slate-400 text-xs font-semibold mb-0.5">IBOVESPA</p>
+            <h2 class="text-3xl font-extrabold tracking-tight"><span id="ibov-value">--</span><span class="text-slate-500 text-lg font-medium ml-1">pts</span></h2>
+          </div>
+          <div class="flex flex-col items-end">
+            <span id="ibov-change" class="text-primary font-bold text-lg">--</span>
+            <span id="ibov-points" class="text-slate-500 text-[10px] font-bold">--</span>
+          </div>
+        </div>
+        <div class="h-32 w-full mt-4 relative">
+          <svg class="w-full h-full" preserveAspectRatio="none" viewBox="0 0 400 120">
+            <line class="grid-line" x1="0" x2="400" y1="20" y2="20"></line>
+            <line class="grid-line" x1="0" x2="400" y1="50" y2="50"></line>
+            <line class="grid-line" x1="0" x2="400" y1="80" y2="80"></line>
+            <line class="grid-line" x1="0" x2="400" y1="110" y2="110"></line>
+            <defs>
+              <linearGradient id="chartGradient" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0%" stop-color="#00FF7F" stop-opacity="0.2"></stop>
+                <stop offset="100%" stop-color="#00FF7F" stop-opacity="0"></stop>
+              </linearGradient>
+            </defs>
+            <path id="ibov-path" d="M0,120 L0,90 L40,85 L80,100 L120,70 L160,75 L200,45 L240,55 L280,25 L320,35 L360,15 L400,10 L400,120 Z" fill="url(#chartGradient)"></path>
+            <path id="ibov-line" class="data-line" d="M0,90 L40,85 L80,100 L120,70 L160,75 L200,45 L240,55 L280,25 L320,35 L360,15 L400,10"></path>
+            <circle cx="400" cy="10" fill="#00FF7F" r="4"></circle>
+          </svg>
+        </div>
+        <div class="flex justify-between mt-3">
+          <div class="text-[10px] text-slate-500 font-bold">10:00</div>
+          <div class="text-[10px] text-slate-500 font-bold">12:30</div>
+          <div class="text-[10px] text-slate-500 font-bold">15:00</div>
+          <div class="text-[10px] text-slate-500 font-bold">17:00</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="mb-6">
+      <div class="flex overflow-x-auto hide-scrollbar gap-3 px-4" id="indices-strip"></div>
+    </section>
+
+    <section class="px-4 mb-8">
+      <div class="flex gap-6 border-b border-white/5 mb-4">
+        <button type="button" class="tab-btn pb-3 border-b-2 border-primary text-sm font-bold text-primary" data-filter="altas">Altas</button>
+        <button type="button" class="tab-btn pb-3 border-b-2 border-transparent text-sm font-bold text-slate-500 hover:text-slate-300" data-filter="baixas">Baixas</button>
+      </div>
+      <div class="space-y-2" id="stocks-list"></div>
+    </section>
+
+    <section class="px-4 pb-12">
+      <div class="flex items-center justify-between mb-5">
+        <h3 class="text-lg font-bold tracking-tight">Radar do Mercado</h3>
+        <button class="text-xs font-bold text-primary flex items-center gap-1">Ver todas <span class="material-symbols-outlined text-sm">arrow_forward</span></button>
+      </div>
+      <div class="space-y-6" id="news-list"></div>
+    </section>
+  </main>
+
+  <div id="nav-placeholder"></div>
+
+  <script src="js/api.js"></script>
+  <script>
+    document.getElementById('nav-placeholder').innerHTML = nav();
+    (function fixNav() {
+      const a = document.querySelector('#nav-placeholder a[href="index.html"]');
+      if (a) { a.classList.add('text-primary'); a.querySelector('span:last-child').classList.add('text-primary'); }
+    })();
+
+    const fmt = (n) => Number(n).toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+    const fmtPct = (n) => (n >= 0 ? '+' : '') + n.toFixed(2).replace('.', ',') + '%';
+
+    async function loadMarket() {
+      try {
+        const [indicesRes, stocksRes, newsRes] = await Promise.all([
+          api('/api/market/indices'),
+          api('/api/market/stocks?filter=altas'),
+          api('/api/market/news')
+        ]);
+        const ibov = indicesRes.data.find(i => i.symbol === 'IBOVESPA');
+        if (ibov) {
+          document.getElementById('ibov-value').textContent = fmt(ibov.value);
+          document.getElementById('ibov-change').textContent = fmtPct(ibov.change) + '%';
+          document.getElementById('ibov-change').className = (ibov.change >= 0 ? 'text-primary' : 'text-danger') + ' font-bold text-lg';
+          document.getElementById('ibov-points').textContent = (ibov.changePoints >= 0 ? '+' : '') + fmt(ibov.changePoints) + ' pts hoje';
+        }
+        const others = (indicesRes.data || []).filter(i => i.symbol !== 'IBOVESPA');
+        document.getElementById('indices-strip').innerHTML = others.map(i => `
+          <div class="flex-none bg-card-dark border border-white/5 rounded-xl p-4 min-w-[130px]">
+            <p class="text-[10px] text-slate-400 font-bold uppercase mb-1">${i.symbol}</p>
+            <p class="text-base font-bold">${i.symbol === 'BTC' ? (i.value/1000).toFixed(0) + 'k' : fmt(i.value)}</p>
+            <p class="text-xs font-bold ${i.change >= 0 ? 'text-primary' : 'text-danger'}">${fmtPct(i.change)}</p>
+          </div>
+        `).join('');
+
+        function renderStocks(list) {
+          document.getElementById('stocks-list').innerHTML = (list || []).map(s => `
+            <a href="ativo.html?ticker=${s.ticker}" class="bg-card-dark/50 hover:bg-card-dark border border-white/5 rounded-xl p-4 flex items-center justify-between transition-colors block">
+              <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-lg bg-surface-dark flex items-center justify-center font-bold text-xs text-slate-300 border border-white/10">${s.ticker}</div>
+                <div>
+                  <p class="font-bold text-sm">${s.name}</p>
+                  <p class="text-[10px] text-slate-500 font-semibold">${s.sector}</p>
+                </div>
+              </div>
+              <div class="text-right">
+                <p class="font-bold text-sm">R$ ${fmt(s.price)}</p>
+                <p class="text-xs font-extrabold ${s.change >= 0 ? 'text-primary' : 'text-danger'}">${fmtPct(s.change)}</p>
+              </div>
+            </a>
+          `).join('');
+        }
+        renderStocks(stocksRes.data || []);
+
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+          btn.onclick = async () => {
+            document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('border-primary', 'text-primary'); b.classList.add('border-transparent', 'text-slate-500'); });
+            btn.classList.add('border-primary', 'text-primary'); btn.classList.remove('border-transparent', 'text-slate-500');
+            const r = await api('/api/market/stocks?filter=' + btn.dataset.filter);
+            renderStocks(r.data || []);
+          };
+        });
+
+        (newsRes.data || []).forEach(n => {
+          const div = document.createElement('div');
+          div.className = 'flex gap-4 group cursor-pointer';
+          div.innerHTML = `
+            <div class="w-20 h-20 rounded-xl bg-surface-dark flex-shrink-0 overflow-hidden border border-white/10" style="background-image:url('${n.image}');background-size:cover;background-position:center"></div>
+            <div class="flex flex-col justify-between py-0.5">
+              <div>
+                <p class="text-[10px] text-primary font-extrabold uppercase tracking-widest mb-1">${n.category}</p>
+                <h4 class="text-sm font-bold leading-tight line-clamp-2 text-slate-100 group-hover:text-primary transition-colors">${n.title}</h4>
+              </div>
+              <p class="text-[10px] text-slate-500 font-bold">${n.time} • ${n.source}</p>
+            </div>
+          `;
+          document.getElementById('news-list').appendChild(div);
+        });
+      } catch (e) {
+        console.error(e);
+        document.getElementById('ibov-value').textContent = '--';
+        document.getElementById('stocks-list').innerHTML = '<p class="text-slate-500 p-4">Falha ao carregar dados. Verifique se o servidor está rodando.</p>';
+      }
+    }
+    loadMarket();
+  </script>
+</body>
+</html>

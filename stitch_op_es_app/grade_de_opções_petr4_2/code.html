@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Grade de Opções (Dark)</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#13ec6a",
+                        "background-dark": "#0a0c0b",
+                        "card-dark": "#161b18",
+                        "danger": "#ff4d4d",
+                        "itm-highlight": "rgba(19, 236, 106, 0.08)",
+                        "strike-bg": "#1e2421",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        .tabular-nums { font-variant-numeric: tabular-nums; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        :root {
+            --itm-blue-tint: rgba(59, 130, 246, 0.12);
+            --itm-green-tint: rgba(19, 236, 106, 0.08);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-dark font-display text-white antialiased">
+<div class="relative flex h-screen w-full flex-col overflow-hidden max-w-md mx-auto border-x border-white/5">
+<header class="bg-background-dark border-b border-white/10 z-20">
+<div class="flex items-center p-4 pb-2 justify-between">
+<div class="text-white flex size-10 shrink-0 items-center justify-start">
+<span class="material-symbols-outlined cursor-pointer text-2xl">chevron_left</span>
+</div>
+<div class="flex-1 text-center">
+<h1 class="text-white text-lg font-extrabold leading-tight tracking-tight uppercase">PETR4</h1>
+<p class="text-primary text-sm font-bold tabular-nums">R$ 36,45 <span class="ml-1 text-[11px] font-medium opacity-90">(+1,20%)</span></p>
+</div>
+<div class="flex w-10 items-center justify-end">
+<button class="text-white flex items-center justify-center h-10 w-10">
+<span class="material-symbols-outlined">tune</span>
+</button>
+</div>
+</div>
+<div class="px-4 py-3">
+<div class="relative">
+<select class="w-full appearance-none rounded-xl text-white border border-white/10 bg-white/5 focus:ring-1 focus:ring-primary h-12 pl-4 pr-10 text-sm font-semibold tracking-wide cursor-pointer outline-none">
+<option value="oct24">18 OUT 24 (15d)</option>
+<option value="nov24">15 NOV 24 (42d)</option>
+<option value="dec24">20 DEZ 24 (78d)</option>
+</select>
+<div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-white/50">
+<span class="material-symbols-outlined">expand_more</span>
+</div>
+</div>
+</div>
+<div class="flex px-0 border-b border-white/5 bg-white/[0.02]">
+<div class="flex-1 text-center py-2.5 text-[11px] font-bold tracking-[0.1em] text-white/60 uppercase border-r border-white/5">Calls</div>
+<div class="w-[72px]"></div> 
+<div class="flex-1 text-center py-2.5 text-[11px] font-bold tracking-[0.1em] text-white/60 uppercase border-l border-white/5">Puts</div>
+</div>
+<div class="grid grid-cols-7 text-[9px] uppercase font-bold text-white/40 py-2 px-0 text-center border-b border-white/10">
+<div class="col-span-1">Últ.</div>
+<div class="col-span-1">Var%</div>
+<div class="col-span-1 border-r border-white/5">Vol.</div>
+<div class="col-span-1 text-primary bg-white/5">Strike</div>
+<div class="col-span-1 border-l border-white/5">Vol.</div>
+<div class="col-span-1">Var%</div>
+<div class="col-span-1">Últ.</div>
+</div>
+</header>
+<main class="flex-1 overflow-y-auto hide-scrollbar bg-background-dark">
+<div class="grid grid-cols-7 text-[11px] font-medium border-b border-white/5 tabular-nums">
+<div class="col-span-3 grid grid-cols-3 py-3.5 px-1 bg-[var(--itm-green-tint)]">
+<div class="text-white text-center font-bold">2,85</div>
+<div class="text-primary text-center">+2.4%</div>
+<div class="text-white/40 text-center">420k</div>
+</div>
+<div class="col-span-1 flex items-center justify-center bg-strike-bg font-black text-white text-xs border-x border-white/10 py-3.5 shadow-inner">34.00</div>
+<div class="col-span-3 grid grid-cols-3 py-3.5 px-1">
+<div class="text-white/40 text-center">12k</div>
+<div class="text-danger text-center">-1.2%</div>
+<div class="text-white/90 text-center">0,12</div>
+</div>
+</div>
+<div class="grid grid-cols-7 text-[11px] font-medium border-b border-white/5 tabular-nums">
+<div class="col-span-3 grid grid-cols-3 py-3.5 px-1 bg-[var(--itm-green-tint)]">
+<div class="text-white text-center font-bold">1,90</div>
+<div class="text-primary text-center">+1.8%</div>
+<div class="text-white/40 text-center">1.2M</div>
+</div>
+<div class="col-span-1 flex items-center justify-center bg-strike-bg font-black text-white text-xs border-x border-white/10 py-3.5">35.00</div>
+<div class="col-span-3 grid grid-cols-3 py-3.5 px-1">
+<div class="text-white/40 text-center">45k</div>
+<div class="text-danger text-center">-0.8%</div>
+<div class="text-white/90 text-center">0,25</div>
+</div>
+</div>
+<div class="w-full bg-primary/20 border-y border-primary/30 py-1.5 px-4 text-[10px] font-bold text-primary flex justify-between items-center uppercase tracking-widest">
+<span class="flex items-center gap-1"><span class="size-1.5 rounded-full bg-primary animate-pulse"></span> At the money</span>
+<span>PETR4 36,45</span>
+</div>
+<div class="grid grid-cols-7 text-[11px] font-medium border-b border-white/5 tabular-nums">
+<div class="col-span-3 grid grid-cols-3 py-3.5 px-1">
+<div class="text-white text-center font-bold">0,88</div>
+<div class="text-danger text-center">-4.2%</div>
+<div class="text-white/40 text-center">3.1M</div>
+</div>
+<div class="col-span-1 flex items-center justify-center bg-strike-bg font-black text-white text-xs border-x border-white/10 py-3.5">37.00</div>
+<div class="col-span-3 grid grid-cols-3 py-3.5 px-1 bg-[var(--itm-blue-tint)]">
+<div class="text-white/40 text-center">85k</div>
+<div class="text-primary text-center">+1.5%</div>
+<div class="text-white text-center font-bold">1,20</div>
+</div>
+</div>
+<div class="grid grid-cols-7 text-[11px] font-medium border-b border-white/5 tabular-nums">
+<div class="col-span-3 grid grid-cols-3 py-3.5 px-1">
+<div class="text-white text-center font-bold">0,45</div>
+<div class="text-danger text-center">-8.4%</div>
+<div class="text-white/40 text-center">2.4M</div>
+</div>
+<div class="col-span-1 flex items-center justify-center bg-strike-bg font-black text-white text-xs border-x border-white/10 py-3.5">38.00</div>
+<div class="col-span-3 grid grid-cols-3 py-3.5 px-1 bg-[var(--itm-blue-tint)]">
+<div class="text-white/40 text-center">120k</div>
+<div class="text-primary text-center">+3.2%</div>
+<div class="text-white text-center font-bold">2,05</div>
+</div>
+</div>
+<div class="grid grid-cols-7 text-[11px] font-medium border-b border-white/5 tabular-nums">
+<div class="col-span-3 grid grid-cols-3 py-3.5 px-1">
+<div class="text-white text-center font-bold">0,21</div>
+<div class="text-danger text-center">-12%</div>
+<div class="text-white/40 text-center">1.8M</div>
+</div>
+<div class="col-span-1 flex items-center justify-center bg-strike-bg font-black text-white text-xs border-x border-white/10 py-3.5">39.00</div>
+<div class="col-span-3 grid grid-cols-3 py-3.5 px-1 bg-[var(--itm-blue-tint)]">
+<div class="text-white/40 text-center">240k</div>
+<div class="text-primary text-center">+5.6%</div>
+<div class="text-white text-center font-bold">3,01</div>
+</div>
+</div>
+<div class="grid grid-cols-7 text-[11px] font-medium border-b border-white/5 tabular-nums">
+<div class="col-span-3 grid grid-cols-3 py-3.5 px-1">
+<div class="text-white text-center font-bold">0,08</div>
+<div class="text-danger text-center">-22%</div>
+<div class="text-white/40 text-center">900k</div>
+</div>
+<div class="col-span-1 flex items-center justify-center bg-strike-bg font-black text-white text-xs border-x border-white/10 py-3.5">40.00</div>
+<div class="col-span-3 grid grid-cols-3 py-3.5 px-1 bg-[var(--itm-blue-tint)]">
+<div class="text-white/40 text-center">500k</div>
+<div class="text-primary text-center">+8.2%</div>
+<div class="text-white text-center font-bold">4,15</div>
+</div>
+</div>
+<div class="py-10 text-center text-[10px] text-white/20 uppercase tracking-widest">Fim da Grade</div>
+</main>
+<footer class="bg-card-dark border-t border-white/10 p-3 pt-4 flex gap-2 overflow-x-auto hide-scrollbar">
+<button class="flex h-10 shrink-0 items-center justify-center rounded-full bg-primary px-6 text-background-dark text-xs font-extrabold transition-all active:scale-95 shadow-lg shadow-primary/10">
+                TODOS
+            </button>
+<button class="flex h-10 shrink-0 items-center justify-center rounded-full bg-white/5 border border-white/10 px-6 text-white text-xs font-bold hover:bg-white/10 active:scale-95 transition-all">
+                ITM
+            </button>
+<button class="flex h-10 shrink-0 items-center justify-center rounded-full bg-white/5 border border-white/10 px-6 text-white text-xs font-bold hover:bg-white/10 active:scale-95 transition-all">
+                OTM
+            </button>
+<button class="flex h-10 shrink-0 items-center justify-center rounded-full bg-white/5 border border-white/10 px-6 text-white text-xs font-bold hover:bg-white/10 active:scale-95 transition-all whitespace-nowrap">
+                ATM (DELTA 50)
+            </button>
+</footer>
+<div class="h-8 w-full bg-card-dark flex justify-center items-start pt-2">
+<div class="w-32 h-1.5 bg-white/15 rounded-full"></div>
+</div>
+</div>
+
+</body></html>

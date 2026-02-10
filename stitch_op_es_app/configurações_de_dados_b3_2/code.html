@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Ajustes de Dados - B3</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#13ec6a",
+                        "status-red": "#ff4d4d",
+                        "status-yellow": "#ffb800",
+                        "background-dark": "#090d0b",
+                        "card-dark": "#141a17",
+                        "border-dark": "#222c26",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        :root {
+            --primary: #13ec6a;
+            --status-red: #ff4d4d;
+            --status-yellow: #ffb800;
+        }
+        body {
+            font-family: 'Manrope', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .glow-green {
+            box-shadow: 0 0 12px rgba(19, 236, 106, 0.5);
+        }
+        .glow-red {
+            box-shadow: 0 0 12px rgba(255, 77, 77, 0.5);
+        }
+        .glow-yellow {
+            box-shadow: 0 0 12px rgba(255, 184, 0, 0.5);
+        }
+        .ios-blur {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-dark text-slate-100 antialiased min-h-screen">
+<div class="relative mx-auto min-h-screen w-full max-w-[430px] flex flex-col bg-background-dark overflow-x-hidden">
+<header class="sticky top-0 z-50 bg-background-dark/80 ios-blur px-4 pt-14 pb-4 flex items-center justify-between border-b border-border-dark">
+<button class="flex items-center justify-center size-10 rounded-full hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined text-2xl text-primary">arrow_back_ios_new</span>
+</button>
+<h1 class="text-lg font-bold tracking-tight">Ajustes de Dados</h1>
+<button class="flex items-center justify-center size-10 rounded-full hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined text-2xl text-primary">refresh</span>
+</button>
+</header>
+<div class="px-4 py-6">
+<div class="bg-primary/5 border border-primary/20 rounded-2xl p-5 flex items-center gap-4">
+<div class="bg-primary/20 p-3 rounded-xl">
+<span class="material-symbols-outlined text-primary text-3xl">sensors</span>
+</div>
+<div>
+<p class="text-[10px] uppercase tracking-[0.15em] font-bold text-primary/70">Fluxo B3</p>
+<p class="text-xl font-extrabold text-white">Conexão Estável</p>
+<div class="flex items-center gap-1.5 mt-0.5">
+<span class="size-2 rounded-full bg-primary glow-green"></span>
+<p class="text-xs text-slate-400">Provedor: Brapi API</p>
+</div>
+</div>
+</div>
+</div>
+<div class="px-5 pb-3">
+<h2 class="text-xs font-bold text-slate-500 uppercase tracking-widest">Fontes de Dados Disponíveis</h2>
+</div>
+<div class="px-4 space-y-4">
+<div class="bg-card-dark border border-primary/30 rounded-2xl p-4 relative overflow-hidden">
+<div class="absolute top-0 right-0 p-3">
+<span class="flex size-3 rounded-full bg-primary glow-green"></span>
+</div>
+<div class="flex gap-4 mb-4">
+<div class="bg-primary/10 p-2.5 rounded-xl size-12 flex items-center justify-center border border-primary/20">
+<span class="material-symbols-outlined text-primary">bolt</span>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<h3 class="font-bold text-lg">Brapi</h3>
+<span class="text-[9px] px-2 py-0.5 bg-primary text-black font-black rounded-full uppercase">Ativo</span>
+</div>
+<p class="text-xs text-slate-400">API de Mercado Local</p>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<div class="bg-background-dark/50 border border-border-dark p-3 rounded-xl">
+<p class="text-[10px] text-slate-500 uppercase font-bold mb-1">Latência</p>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-sm text-primary">speed</span>
+<span class="text-sm font-mono font-bold text-primary">42ms</span>
+</div>
+</div>
+<div class="bg-background-dark/50 border border-border-dark p-3 rounded-xl">
+<p class="text-[10px] text-slate-500 uppercase font-bold mb-1">Delay</p>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-sm text-primary">schedule</span>
+<span class="text-sm font-bold text-white uppercase tracking-tighter">Real-Time</span>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-card-dark border border-border-dark rounded-2xl p-4 relative">
+<div class="absolute top-0 right-0 p-3">
+<span class="flex size-3 rounded-full bg-status-yellow glow-yellow"></span>
+</div>
+<div class="flex gap-4 mb-4">
+<div class="bg-slate-800/50 p-2.5 rounded-xl size-12 flex items-center justify-center border border-border-dark">
+<span class="material-symbols-outlined text-slate-400">query_stats</span>
+</div>
+<div>
+<h3 class="font-bold text-lg text-slate-200">Yahoo Finance</h3>
+<p class="text-xs text-slate-500">Plano Gratuito</p>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<div class="bg-background-dark/30 border border-border-dark p-3 rounded-xl">
+<p class="text-[10px] text-slate-500 uppercase font-bold mb-1">Latência</p>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-sm text-status-yellow">speed</span>
+<span class="text-sm font-mono font-bold text-slate-300">215ms</span>
+</div>
+</div>
+<div class="bg-background-dark/30 border border-border-dark p-3 rounded-xl">
+<p class="text-[10px] text-slate-500 uppercase font-bold mb-1">Delay</p>
+<div class="flex items-center gap-2 text-slate-300">
+<span class="material-symbols-outlined text-sm">history</span>
+<span class="text-sm font-bold">15 min</span>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-card-dark border border-border-dark rounded-2xl p-4 relative">
+<div class="absolute top-0 right-0 p-3">
+<span class="flex size-3 rounded-full bg-status-red glow-red"></span>
+</div>
+<div class="flex gap-4 mb-4">
+<div class="bg-slate-800/50 p-2.5 rounded-xl size-12 flex items-center justify-center border border-border-dark">
+<span class="material-symbols-outlined text-slate-400">cloud_sync</span>
+</div>
+<div>
+<h3 class="font-bold text-lg text-slate-200">HG Brasil</h3>
+<p class="text-xs text-status-red font-medium">Requer Autenticação</p>
+</div>
+</div>
+<div class="space-y-3 bg-background-dark/40 p-3 rounded-xl border border-border-dark">
+<div class="flex justify-between items-center px-1">
+<label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">API Key</label>
+<span class="text-[9px] text-primary/80 font-bold uppercase cursor-pointer">Como obter?</span>
+</div>
+<div class="flex gap-2">
+<div class="relative flex-1">
+<input class="w-full bg-slate-900 border border-border-dark rounded-lg text-sm px-4 py-2.5 focus:ring-1 focus:ring-primary/50 text-slate-300 font-mono tracking-widest placeholder:text-slate-700" placeholder="Insira sua chave" type="password" value="hgb_•••••••••"/>
+<button class="absolute right-3 top-2.5 text-slate-500">
+<span class="material-symbols-outlined text-lg">visibility_off</span>
+</button>
+</div>
+<button class="bg-primary/20 text-primary border border-primary/20 hover:bg-primary/30 px-4 rounded-lg text-xs font-bold transition-all uppercase">Salvar</button>
+</div>
+</div>
+</div>
+</div>
+<div class="px-5 mt-10 pb-3">
+<h2 class="text-xs font-bold text-slate-500 uppercase tracking-widest text-center">Configurações do Sistema</h2>
+</div>
+<div class="px-4 space-y-2 mb-32">
+<div class="flex items-center justify-between p-4 bg-card-dark border border-border-dark rounded-2xl">
+<div class="flex items-center gap-3">
+<div class="size-10 bg-blue-500/10 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-blue-400">rebase_edit</span>
+</div>
+<div>
+<p class="text-sm font-semibold text-white">Failover Inteligente</p>
+<p class="text-xs text-slate-500">Auto-switch se latência &gt; 500ms</p>
+</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-slate-800 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<div class="flex items-center justify-between p-4 bg-card-dark border border-border-dark rounded-2xl">
+<div class="flex items-center gap-3">
+<div class="size-10 bg-purple-500/10 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-purple-400">terminal</span>
+</div>
+<div>
+<p class="text-sm font-semibold text-white">Logs de Depuração</p>
+<p class="text-xs text-slate-500">Histórico detalhado de JSON</p>
+</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-slate-800 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+</div>
+<div class="p-8 text-center">
+<p class="text-[10px] text-slate-600 uppercase tracking-[0.3em] font-medium">Versão 2.4.0 (A) • Build 92</p>
+</div>
+<div class="fixed bottom-0 left-0 right-0 mx-auto max-w-[430px] bg-background-dark/90 ios-blur border-t border-border-dark p-5 pb-10">
+<button class="w-full bg-primary text-black font-black py-4 rounded-2xl shadow-xl shadow-primary/10 hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined font-bold">save</span>
+                APLICAR ALTERAÇÕES
+            </button>
+</div>
+</div>
+
+</body></html>

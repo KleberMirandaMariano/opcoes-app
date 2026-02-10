@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Simulador de Estratégias - Dark</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#13ec6a",
+                        "background-dark": "#0a0f0d",
+                        "surface-dark": "#161b18",
+                        "border-dark": "#2a322e",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        @layer base {
+            body { font-family: 'Manrope', sans-serif; }
+            .no-scrollbar::-webkit-scrollbar { display: none; }
+            .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }input[type="range"] {
+                @apply appearance-none bg-border-dark rounded-full h-1.5 focus:outline-none focus:ring-2 focus:ring-primary/30;
+            }
+            input[type="range"]::-webkit-slider-thumb {
+                @apply appearance-none w-5 h-5 bg-white border-2 border-primary rounded-full cursor-pointer shadow-lg;
+            }
+            input[type="range"]::-moz-range-thumb {
+                @apply w-5 h-5 bg-white border-2 border-primary rounded-full cursor-pointer shadow-lg;
+            }
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-dark text-slate-100 min-h-screen">
+<header class="sticky top-0 z-50 bg-background-dark/90 backdrop-blur-md border-b border-border-dark">
+<div class="flex items-center justify-between p-4">
+<button class="w-10 h-10 flex items-center justify-center rounded-full active:bg-white/10 transition-colors">
+<span class="material-symbols-outlined text-white">arrow_back_ios_new</span>
+</button>
+<div class="text-center">
+<h1 class="text-[10px] font-bold tracking-[0.1em] uppercase opacity-50">Simulador de Estratégias</h1>
+<div class="flex items-center justify-center gap-1.5 mt-0.5">
+<span class="text-lg font-extrabold tracking-tight">PETR4</span>
+<span class="text-[11px] font-bold px-1.5 py-0.5 rounded bg-primary text-background-dark">R$ 38,45</span>
+</div>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-full active:bg-white/10 transition-colors">
+<span class="material-symbols-outlined text-white">tune</span>
+</button>
+</div>
+<div class="flex overflow-x-auto no-scrollbar gap-2 px-4 pb-4">
+<button class="whitespace-nowrap px-4 py-2 rounded-full bg-primary text-background-dark font-extrabold text-xs">
+            Bull Call Spread
+        </button>
+<button class="whitespace-nowrap px-4 py-2 rounded-full bg-surface-dark border border-border-dark text-slate-300 font-bold text-xs">
+            Iron Condor
+        </button>
+<button class="whitespace-nowrap px-4 py-2 rounded-full bg-surface-dark border border-border-dark text-slate-300 font-bold text-xs">
+            Straddle
+        </button>
+<button class="whitespace-nowrap px-4 py-2 rounded-full bg-surface-dark border border-border-dark text-slate-300 font-bold text-xs">
+            Butterfly
+        </button>
+</div>
+</header>
+<main class="p-4 space-y-5 pb-40">
+<section class="bg-surface-dark rounded-2xl p-5 border border-border-dark shadow-2xl">
+<div class="flex justify-between items-start mb-6">
+<div>
+<p class="text-[10px] font-bold opacity-40 uppercase tracking-wider mb-1">Payoff no Vencimento</p>
+<div class="flex items-baseline gap-2">
+<span class="text-3xl font-black text-primary tracking-tighter">+ R$ 1.250</span>
+<span class="text-xs font-bold text-primary opacity-80">+138%</span>
+</div>
+</div>
+<div class="text-right">
+<p class="text-[10px] font-bold opacity-40 uppercase tracking-wider mb-1">Expiração</p>
+<p class="text-sm font-black text-slate-200">18 Out <span class="text-[10px] opacity-60 ml-1">22d</span></p>
+</div>
+</div>
+<div class="relative h-56 w-full">
+<svg class="w-full h-full" preserveAspectRatio="none" viewBox="0 0 400 200">
+<defs>
+<linearGradient id="chartGrad" x1="0%" x2="0%" y1="0%" y2="100%">
+<stop offset="0%" style="stop-color:#13ec6a;stop-opacity:0.25"></stop>
+<stop offset="100%" style="stop-color:#13ec6a;stop-opacity:0"></stop>
+</linearGradient>
+<pattern height="40" id="grid" patternUnits="userSpaceOnUse" width="40">
+<path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"></path>
+</pattern>
+</defs>
+<rect fill="url(#grid)" height="200" width="400"></rect>
+<line class="stroke-white/10" stroke-dasharray="4" stroke-width="1.5" x1="0" x2="400" y1="100" y2="100"></line>
+<path d="M 0 160 L 120 160 L 260 40 L 400 40 L 400 100 L 0 100 Z" fill="url(#chartGrad)"></path>
+<path class="drop-shadow-[0_0_8px_rgba(19,236,106,0.5)]" d="M 0 160 L 120 160 L 260 40 L 400 40" fill="none" stroke="#13ec6a" stroke-linecap="round" stroke-linejoin="round" stroke-width="4"></path>
+<circle cx="210" cy="100" fill="#13ec6a" r="6" stroke="#0a0f0d" stroke-width="2"></circle>
+<line opacity="0.3" stroke="#ffffff" stroke-dasharray="2" stroke-width="1" x1="180" x2="180" y1="0" y2="200"></line>
+</svg>
+<div class="flex justify-between text-[10px] font-black opacity-30 mt-3 px-1">
+<span>32.00</span>
+<span>35.00</span>
+<span class="text-primary opacity-100">39.20 BE</span>
+<span>42.00</span>
+<span>45.00</span>
+</div>
+</div>
+</section>
+<section class="grid grid-cols-3 gap-3">
+<div class="bg-surface-dark p-3.5 rounded-xl border border-border-dark">
+<p class="text-[10px] font-bold opacity-40 uppercase mb-1.5">Lucro Máx</p>
+<p class="text-sm font-black text-primary tracking-tight">R$ 2.450</p>
+</div>
+<div class="bg-surface-dark p-3.5 rounded-xl border border-border-dark">
+<p class="text-[10px] font-bold opacity-40 uppercase mb-1.5">Risco Máx</p>
+<p class="text-sm font-black text-red-500 tracking-tight">R$ 1.120</p>
+</div>
+<div class="bg-surface-dark p-3.5 rounded-xl border border-border-dark">
+<p class="text-[10px] font-bold opacity-40 uppercase mb-1.5">Probab.</p>
+<p class="text-sm font-black text-white tracking-tight">64.2%</p>
+</div>
+</section>
+<section class="space-y-4">
+<div class="flex items-center justify-between px-1">
+<h3 class="text-[11px] font-extrabold uppercase tracking-[0.15em] opacity-40">Ativos da Estratégia</h3>
+<button class="flex items-center gap-1 text-primary text-[11px] font-black active:opacity-60">
+<span class="material-symbols-outlined text-[16px] font-black">add_circle</span> 
+                ADICIONAR
+            </button>
+</div>
+<div class="bg-surface-dark rounded-2xl border border-border-dark overflow-hidden transition-all active:border-primary/50">
+<div class="p-4 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
+<span class="font-black text-sm">C</span>
+</div>
+<div>
+<p class="text-sm font-black tracking-tight">PETRK380</p>
+<p class="text-[10px] font-bold opacity-40 uppercase">Call • Strike 38,00</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-xs font-black text-slate-200">R$ 1,45</p>
+<p class="text-[10px] font-bold text-primary">+2.45%</p>
+</div>
+</div>
+<div class="p-5 space-y-6">
+<div class="space-y-3">
+<div class="flex justify-between items-end">
+<span class="text-[10px] font-bold opacity-40 uppercase tracking-widest">Quantidade</span>
+<div class="flex items-center gap-3">
+<span class="text-sm font-black text-white px-2 py-1 rounded bg-white/5 border border-white/10">1.000</span>
+</div>
+</div>
+<input class="w-full" max="5000" min="0" step="100" type="range" value="1000"/>
+</div>
+<div class="grid grid-cols-4 gap-2 pt-2 border-t border-white/5">
+<div class="flex flex-col">
+<span class="text-[8px] font-bold opacity-30 uppercase">Delta</span>
+<span class="text-xs font-black text-slate-300">0.54</span>
+</div>
+<div class="flex flex-col">
+<span class="text-[8px] font-bold opacity-30 uppercase">Gamma</span>
+<span class="text-xs font-black text-slate-300">0.12</span>
+</div>
+<div class="flex flex-col">
+<span class="text-[8px] font-bold opacity-30 uppercase">Theta</span>
+<span class="text-xs font-black text-red-400">-0.05</span>
+</div>
+<div class="flex flex-col">
+<span class="text-[8px] font-bold opacity-30 uppercase">Vega</span>
+<span class="text-xs font-black text-slate-300">0.08</span>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-surface-dark rounded-2xl border border-border-dark overflow-hidden transition-all active:border-red-500/50">
+<div class="p-4 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center text-red-500 border border-red-500/20">
+<span class="font-black text-sm">C</span>
+</div>
+<div>
+<p class="text-sm font-black tracking-tight">PETRK410</p>
+<p class="text-[10px] font-bold opacity-40 uppercase">Call • Strike 41,00</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-xs font-black text-slate-200">R$ 0,55</p>
+<p class="text-[10px] font-bold text-red-500">-1.20%</p>
+</div>
+</div>
+<div class="p-5 space-y-6">
+<div class="space-y-3">
+<div class="flex justify-between items-end">
+<span class="text-[10px] font-bold opacity-40 uppercase tracking-widest">Quantidade</span>
+<div class="flex items-center gap-3">
+<span class="text-sm font-black text-red-500 px-2 py-1 rounded bg-white/5 border border-white/10">-1.000</span>
+</div>
+</div>
+<input class="w-full !accent-red-500" max="0" min="-5000" step="100" type="range" value="-1000"/>
+</div>
+<div class="grid grid-cols-4 gap-2 pt-2 border-t border-white/5">
+<div class="flex flex-col">
+<span class="text-[8px] font-bold opacity-30 uppercase">Delta</span>
+<span class="text-xs font-black text-slate-300">-0.32</span>
+</div>
+<div class="flex flex-col">
+<span class="text-[8px] font-bold opacity-30 uppercase">Gamma</span>
+<span class="text-xs font-black text-slate-300">-0.08</span>
+</div>
+<div class="flex flex-col">
+<span class="text-[8px] font-bold opacity-30 uppercase">Theta</span>
+<span class="text-xs font-black text-primary">0.03</span>
+</div>
+<div class="flex flex-col">
+<span class="text-[8px] font-bold opacity-30 uppercase">Vega</span>
+<span class="text-xs font-black text-slate-300">-0.04</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<footer class="fixed bottom-0 left-0 right-0 p-4 pb-10 bg-background-dark/80 backdrop-blur-xl border-t border-border-dark">
+<div class="max-w-md mx-auto flex items-center gap-4">
+<div class="flex-1">
+<p class="text-[9px] font-bold opacity-40 uppercase tracking-widest">Custo Total</p>
+<p class="text-xl font-black text-white tracking-tighter">R$ 900,00</p>
+</div>
+<button class="flex-[1.5] bg-primary hover:bg-primary/90 text-background-dark font-black py-4 rounded-2xl shadow-lg shadow-primary/10 transition-all active:scale-[0.98]">
+            ENVIAR ORDEM
+        </button>
+</div>
+</footer>
+
+</body></html>
