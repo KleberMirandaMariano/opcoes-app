@@ -1,0 +1,5 @@
+{
+  "name": "OpçõesExpert - Analisador de Mercado",
+  "description": "Um dashboard avançado para visualizar e analisar opções de ações (Calls e Puts), classificando-as automaticamente em In-the-Money (ITM), Out-of-the-Money (OTM) e At-the-Money (ATM), com insights gerados por IA.",
+  "requestFramePermissions": []
+}
