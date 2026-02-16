@@ -4,11 +4,26 @@
  * Opções: nenhuma API gratuita REST expõe grade completa; manter mock ou B3 COTAHIST.
  */
 
+const NodeCache = require('node-cache');
+
 const BRAPI_BASE = 'https://brapi.dev/api';
 const HG_BASE = 'https://api.hgbrasil.com/finance';
+const CACHE_TTL = parseInt(process.env.CACHE_TTL || '300', 10);
 
-const brapiToken = process.env.BRAPI_TOKEN || process.env.BRAPI_API_KEY || '';
-const hgKey = process.env.HGBRASIL_KEY || process.env.HG_KEY || '';
+const brapiToken = (process.env.BRAPI_TOKEN || '').trim();
+const hgKey = (process.env.HGBRASIL_KEY || '').trim();
+
+// Validar e avisar sobre configuração de tokens
+if (!brapiToken) {
+  console.warn('⚠️ BRAPI_TOKEN não configurado. Usando apenas dados mock. Funciona: PETR4, VALE3, ITUB4, MGLU3');
+}
+if (!hgKey) {
+  console.warn('⚠️ HGBRASIL_KEY não configurado. Alguns dados ficarão indisponíveis.');
+}
+
+// Cache com TTL automático
+const cache = new NodeCache({ stdTTL: CACHE_TTL });
+
 const BRAPI_TEST_TICKERS = ['PETR4', 'VALE3', 'ITUB4', 'MGLU3'];
 function canUseBrapiWithoutToken(ticker) {
   return BRAPI_TEST_TICKERS.includes((ticker || '').toUpperCase());
@@ -161,6 +176,10 @@ function getMockIndices() {
 }
 
 async function getIndices() {
+  const cacheKey = 'indices';
+  const cached = cache.get(cacheKey);
+  if (cached) return cached;
+
   let data = {};
   if (brapiToken) {
     try {
@@ -179,37 +198,55 @@ async function getIndices() {
   }
   // Garantir IBOVESPA para o dashboard
   if (!data.IBOVESPA && data.BVSP) data.IBOVESPA = { ...data.BVSP, symbol: 'IBOVESPA' };
-  return Object.values(data);
+
+  const result = Object.values(data);
+  cache.set(cacheKey, result);
+  return result;
 }
 
 async function getStocksList(filter = 'altas') {
+  const cacheKey = `stocks_list_${filter}`;
+  const cached = cache.get(cacheKey);
+  if (cached) return cached;
+
+  let result;
   if (brapiToken) {
     try {
       const list = await getBrapiStocksList(filter);
-      if (list.length) return list;
+      if (list.length) result = list;
     } catch (e) { /* fallback */ }
   }
-  return filter === 'baixas' ? [...stocksBaixas] : [...stocksAltas];
+  result = result || (filter === 'baixas' ? [...stocksBaixas] : [...stocksAltas]);
+  cache.set(cacheKey, result);
+  return result;
 }
 
 async function getStock(ticker) {
   ticker = (ticker || '').toUpperCase();
+  const cacheKey = `stock_${ticker}`;
+  const cached = cache.get(cacheKey);
+  if (cached) return cached;
+
+  let stock;
   if (brapiToken || canUseBrapiWithoutToken(ticker)) {
     try {
       const q = await getBrapiQuote(ticker);
-      if (q) return q;
+      if (q) stock = q;
     } catch (e) { /* fallback */ }
   }
-  if (hgKey) {
+  if (!stock && hgKey) {
     try {
       const q = await getHGStockPrice(ticker);
-      if (q) return q;
+      if (q) stock = q;
     } catch (e) { /* fallback */ }
   }
-  let stock = mockStocks[ticker];
   if (!stock) {
-    stock = { ticker, name: ticker, shortName: ticker, sector: '-', price: 36 + Math.random() * 10, change: (Math.random() * 4 - 1), changeValue: 0.5, fundamentals: { pl: 0, dy: 0, roe: 0, pvp: 0 } };
+    stock = mockStocks[ticker];
+    if (!stock) {
+      stock = { ticker, name: ticker, shortName: ticker, sector: '-', price: 36 + Math.random() * 10, change: (Math.random() * 4 - 1), changeValue: 0.5, fundamentals: { pl: 0, dy: 0, roe: 0, pvp: 0 } };
+    }
   }
+  cache.set(cacheKey, stock);
   return stock;
 }
 

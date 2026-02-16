@@ -5,23 +5,23 @@ const { indices: mockIndices, stocksAltas, stocksBaixas, news } = require('../da
 
 router.get('/indices', async (req, res) => {
   try {
-    const data = await getIndices();
-    return res.json({ success: true, data });
+    const indicesData = await getIndices();
+    res.json({ success: true, data: indicesData });
   } catch (e) {
-    const list = [...mockIndices];
-    return res.json({ success: true, data: list });
+    const indicesMock = [...mockIndices];
+    res.json({ success: true, data: indicesMock });
   }
 });
 
 router.get('/stocks', async (req, res) => {
   try {
-    const filter = (req.query.filter || 'altas').toLowerCase();
-    const list = await getStocksList(filter);
-    return res.json({ success: true, data: list });
+    const filterType = (req.query.filter || 'altas').toLowerCase();
+    const stocksList = await getStocksList(filterType);
+    res.json({ success: true, data: stocksList });
   } catch (e) {
-    const filter = (req.query.filter || 'altas').toLowerCase();
-    const list = filter === 'baixas' ? stocksBaixas : stocksAltas;
-    return res.json({ success: true, data: list });
+    const filterType = (req.query.filter || 'altas').toLowerCase();
+    const stocksList = filterType === 'baixas' ? stocksBaixas : stocksAltas;
+    res.json({ success: true, data: stocksList });
   }
 });
 
