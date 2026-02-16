@@ -88,8 +88,9 @@ app.use('/api/backtest', backtestRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/rb3', rb3Routes);
 
-// Frontend estático (app unificado)
-const frontendPath = path.join(__dirname, '..', 'app');
+// Frontend estático (React SPA - em desenvolvimento, Vite roda em :3000)
+// Em produção, será servido do diretório dist/ após npm run build
+const frontendPath = path.join(__dirname, '..', 'dist');
 
 // Middleware para prevenir cache de arquivos HTML
 app.use((req, res, next) => {
@@ -101,13 +102,24 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(express.static(frontendPath));
-app.get('*', (req, res) => {
-  if (!req.path.startsWith('/api')) {
-    res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
-    res.sendFile(path.join(frontendPath, 'index.html'));
-  }
-});
+// Servir arquivos estáticos (apenas em produção após build)
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(frontendPath));
+  app.get('*', (req, res) => {
+    if (!req.path.startsWith('/api')) {
+      res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.sendFile(path.join(frontendPath, 'index.html'), (err) => {
+        if (err) {
+          res.status(404).json({ error: 'Página não encontrada' });
+        }
+      });
+    }
+  });
+} else {
+  // Em desenvolvimento, apenas serve os endpoints /api
+  logger.info('Modo desenvolvimento: Frontend rodando em http://localhost:3000');
+  logger.info('Backend API disponível em http://localhost:3001/api/*');
+}
 
 // Middleware de tratamento de erro global
 app.use((err, req, res, next) => {
