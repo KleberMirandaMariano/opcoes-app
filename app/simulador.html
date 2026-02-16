@@ -7,9 +7,69 @@
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-  <script>
-    tailwind.config = { darkMode: "class", theme: { extend: { colors: { primary: "#13ec6a", "background-dark": "#102217" }, fontFamily: { display: ["Manrope", "sans-serif"] } } } }
-  </script>
+  <style>
+    /* ===== VARIÁVEIS DE COR ===== */
+    :root {
+      --color-primary: #10B981;
+      --color-danger: #EF4444;
+      --color-bg-dark: #0F172A;
+      --color-card-dark: #1E293B;
+      --color-surface-dark: #334155;
+      --color-border: rgba(255, 255, 255, 0.1);
+      --color-text-primary: #F1F5F9;
+      --color-text-secondary: #CBD5E1;
+    }
+
+    * { box-sizing: border-box; }
+
+    html.dark { background-color: var(--color-bg-dark); color-scheme: dark; }
+
+    body {
+      font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background-color: var(--color-bg-dark);
+      background-image: radial-gradient(circle at 20% 50%, rgba(16, 185, 129, 0.05) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.03) 0%, transparent 50%);
+      color: var(--color-text-primary);
+      min-height: max(884px, 100dvh);
+      line-height: 1.6;
+    }
+
+    .primary { color: var(--color-primary); }
+    .bg-primary { background-color: var(--color-primary); }
+    .border-primary { border-color: var(--color-primary); }
+    .text-primary { color: var(--color-primary); }
+
+    .danger { color: var(--color-danger); }
+    .text-danger { color: var(--color-danger); }
+
+    .bg-background-dark { background-color: var(--color-bg-dark); }
+    .bg-card-dark { background-color: var(--color-card-dark); }
+    .bg-surface-dark { background-color: var(--color-surface-dark); }
+
+    .glassmorphism { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+
+    .card { background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(16, 185, 129, 0.1); border-radius: 12px; transition: all 0.3s ease; }
+    .card:hover { background: rgba(30, 41, 59, 0.8); border-color: rgba(16, 185, 129, 0.3); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(16, 185, 129, 0.1); }
+
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    .grid-line { stroke: rgba(255, 255, 255, 0.05); stroke-width: 1; }
+    .data-line { stroke: var(--color-primary); stroke-width: 2.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+
+    .text-slate-500 { color: var(--color-text-secondary); }
+    .text-slate-400 { color: rgba(203, 213, 225, 0.7); }
+    .text-slate-300 { color: rgba(203, 213, 225, 0.9); }
+    .text-slate-100 { color: var(--color-text-primary); }
+
+    .border-white/5 { border-color: rgba(255, 255, 255, 0.05); }
+    .border-white/10 { border-color: rgba(255, 255, 255, 0.1); }
+
+    .bg-white/5 { background-color: rgba(255, 255, 255, 0.05); }
+    .bg-white/10 { background-color: rgba(255, 255, 255, 0.1); }
+
+    .backdrop-blur-2xl { backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); }
+    .backdrop-blur-xl { backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+  </style>
   <style> body { font-family: 'Manrope', sans-serif; } .no-scrollbar::-webkit-scrollbar { display: none; } body { min-height: max(884px, 100dvh); } </style>
 </head>
 <body class="bg-background-dark text-white min-h-screen pb-32">
@@ -79,94 +139,68 @@
   </footer>
   <div id="nav-placeholder"></div>
   <script src="js/api.js"></script>
-  <script>
-    document.getElementById('nav-placeholder').innerHTML = nav();
-    const q = getQuery();
-    const ticker = (q.ticker || 'PETR4').toUpperCase();
-    document.getElementById('sim-ticker').textContent = ticker;
-
-    async function loadStock() {
-      try {
-        const r = await api('/api/stocks/' + ticker);
-        document.getElementById('sim-price').textContent = 'R$ ' + Number(r.data.price).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-      } catch (e) {
-        document.getElementById('sim-price').textContent = 'R$ 38,45';
-      }
-    }
-    loadStock();
-
-    async function loadPayoff(strategy) {
-      try {
-        const r = await api('/api/strategies/payoff?strategy=' + (strategy || 'bull_call_spread') + '&ticker=' + ticker);
-        const d = r.data;
-        document.getElementById('payoff-value').textContent = '+ R$ ' + (d.payoffAtExpiry || d.maxProfit || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-        document.getElementById('payoff-exp').textContent = '18 Out (22d)';
-        document.getElementById('max-profit').textContent = 'R$ ' + (d.maxProfit || 0).toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
-        document.getElementById('max-loss').textContent = 'R$ ' + (d.maxLoss || 0).toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
-        document.getElementById('breakeven').textContent = 'R$ ' + (d.breakeven || 0).toFixed(2);
-        document.getElementById('cost-estimate').textContent = 'R$ ' + (d.cost || 900).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-
-        const pts = d.points || [[32, -900], [35, -900], [39.2, 0], [41, 2550], [45, 2550]];
-        const xs = pts.map(p => 50 + (p[0] - 32) / (45 - 32) * 300);
-        const ys = pts.map(p => 120 - (p[1] + 900) / 3450 * 100);
-        let pathD = 'M ' + xs[0] + ' ' + ys[0];
-        for (let i = 1; i < pts.length; i++) pathD += ' L ' + xs[i] + ' ' + ys[i];
-        document.getElementById('payoff-svg').innerHTML = `
-          <line class="opacity-10" stroke="currentColor" stroke-dasharray="4" x1="0" x2="400" y1="100" y2="100"/>
-          <path d="${pathD}" fill="none" stroke="#13ec6a" stroke-linejoin="round" stroke-width="4"/>
-          <circle cx="${xs[2]}" cy="${ys[2]}" fill="#13ec6a" r="5"/>
-        `;
-        document.getElementById('payoff-labels').innerHTML = pts.map((p, i) => i === 2 ? '<span class="text-primary opacity-100">' + p[0] + ' BE</span>' : '<span>' + p[0] + '</span>').join('');
-      } catch (e) {
-        document.getElementById('payoff-value').textContent = '+ R$ 1.250,00';
-        document.getElementById('max-profit').textContent = 'R$ 2.4k';
-        document.getElementById('max-loss').textContent = 'R$ 1.1k';
-        document.getElementById('breakeven').textContent = 'R$ 39,20';
-        document.getElementById('cost-estimate').textContent = 'R$ 900,00';
-      }
+  <style>
+    /* ===== VARIÁVEIS DE COR ===== */
+    :root {
+      --color-primary: #10B981;
+      --color-danger: #EF4444;
+      --color-bg-dark: #0F172A;
+      --color-card-dark: #1E293B;
+      --color-surface-dark: #334155;
+      --color-border: rgba(255, 255, 255, 0.1);
+      --color-text-primary: #F1F5F9;
+      --color-text-secondary: #CBD5E1;
     }
 
-    document.querySelectorAll('.strategy-btn').forEach(btn => {
-      btn.onclick = () => {
-        document.querySelectorAll('.strategy-btn').forEach(b => { b.classList.remove('bg-primary', 'text-background-dark'); b.classList.add('bg-white/10', 'text-slate-300'); });
-        btn.classList.add('bg-primary', 'text-background-dark'); btn.classList.remove('bg-white/10', 'text-slate-300');
-        loadPayoff(btn.dataset.strategy);
-      };
-    });
+    * { box-sizing: border-box; }
 
-    document.getElementById('legs-container').innerHTML = `
-      <div class="bg-white/5 rounded-xl border border-white/10 overflow-hidden">
-        <div class="p-4 border-b border-white/5 flex justify-between items-center">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center text-primary font-black text-sm uppercase">C</div>
-            <div>
-              <p class="text-sm font-black">PETRK380</p>
-              <p class="text-[10px] font-bold opacity-40 uppercase">Call • Strike 38,00</p>
-            </div>
-          </div>
-          <div class="text-right">
-            <p class="text-xs font-bold">R$ 1,45</p>
-            <p class="text-[10px] font-bold text-primary">+2.4%</p>
-          </div>
-        </div>
-      </div>
-      <div class="bg-white/5 rounded-xl border border-white/10 overflow-hidden">
-        <div class="p-4 border-b border-white/5 flex justify-between items-center">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-lg bg-red-500/20 flex items-center justify-center text-red-500 font-black text-sm uppercase">C</div>
-            <div>
-              <p class="text-sm font-black">PETRK410</p>
-              <p class="text-[10px] font-bold opacity-40 uppercase">Call • Strike 41,00</p>
-            </div>
-          </div>
-          <div class="text-right">
-            <p class="text-xs font-bold">R$ 0,55</p>
-            <p class="text-[10px] font-bold text-red-500">-1.2%</p>
-          </div>
-        </div>
-      </div>
-    `;
-    loadPayoff('bull_call_spread');
-  </script>
+    html.dark { background-color: var(--color-bg-dark); color-scheme: dark; }
+
+    body {
+      font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background-color: var(--color-bg-dark);
+      background-image: radial-gradient(circle at 20% 50%, rgba(16, 185, 129, 0.05) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.03) 0%, transparent 50%);
+      color: var(--color-text-primary);
+      min-height: max(884px, 100dvh);
+      line-height: 1.6;
+    }
+
+    .primary { color: var(--color-primary); }
+    .bg-primary { background-color: var(--color-primary); }
+    .border-primary { border-color: var(--color-primary); }
+    .text-primary { color: var(--color-primary); }
+
+    .danger { color: var(--color-danger); }
+    .text-danger { color: var(--color-danger); }
+
+    .bg-background-dark { background-color: var(--color-bg-dark); }
+    .bg-card-dark { background-color: var(--color-card-dark); }
+    .bg-surface-dark { background-color: var(--color-surface-dark); }
+
+    .glassmorphism { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+
+    .card { background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(16, 185, 129, 0.1); border-radius: 12px; transition: all 0.3s ease; }
+    .card:hover { background: rgba(30, 41, 59, 0.8); border-color: rgba(16, 185, 129, 0.3); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(16, 185, 129, 0.1); }
+
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    .grid-line { stroke: rgba(255, 255, 255, 0.05); stroke-width: 1; }
+    .data-line { stroke: var(--color-primary); stroke-width: 2.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+
+    .text-slate-500 { color: var(--color-text-secondary); }
+    .text-slate-400 { color: rgba(203, 213, 225, 0.7); }
+    .text-slate-300 { color: rgba(203, 213, 225, 0.9); }
+    .text-slate-100 { color: var(--color-text-primary); }
+
+    .border-white/5 { border-color: rgba(255, 255, 255, 0.05); }
+    .border-white/10 { border-color: rgba(255, 255, 255, 0.1); }
+
+    .bg-white/5 { background-color: rgba(255, 255, 255, 0.05); }
+    .bg-white/10 { background-color: rgba(255, 255, 255, 0.1); }
+
+    .backdrop-blur-2xl { backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); }
+    .backdrop-blur-xl { backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+  </style>
 </body>
 </html>

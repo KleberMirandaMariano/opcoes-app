@@ -7,9 +7,69 @@
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-  <script>
-    tailwind.config = { darkMode: "class", theme: { extend: { colors: { primary: "#13ec6a", "background-dark": "#102217" }, fontFamily: { display: ["Manrope", "sans-serif"] } } } }
-  </script>
+  <style>
+    /* ===== VARIÁVEIS DE COR ===== */
+    :root {
+      --color-primary: #10B981;
+      --color-danger: #EF4444;
+      --color-bg-dark: #0F172A;
+      --color-card-dark: #1E293B;
+      --color-surface-dark: #334155;
+      --color-border: rgba(255, 255, 255, 0.1);
+      --color-text-primary: #F1F5F9;
+      --color-text-secondary: #CBD5E1;
+    }
+
+    * { box-sizing: border-box; }
+
+    html.dark { background-color: var(--color-bg-dark); color-scheme: dark; }
+
+    body {
+      font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background-color: var(--color-bg-dark);
+      background-image: radial-gradient(circle at 20% 50%, rgba(16, 185, 129, 0.05) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.03) 0%, transparent 50%);
+      color: var(--color-text-primary);
+      min-height: max(884px, 100dvh);
+      line-height: 1.6;
+    }
+
+    .primary { color: var(--color-primary); }
+    .bg-primary { background-color: var(--color-primary); }
+    .border-primary { border-color: var(--color-primary); }
+    .text-primary { color: var(--color-primary); }
+
+    .danger { color: var(--color-danger); }
+    .text-danger { color: var(--color-danger); }
+
+    .bg-background-dark { background-color: var(--color-bg-dark); }
+    .bg-card-dark { background-color: var(--color-card-dark); }
+    .bg-surface-dark { background-color: var(--color-surface-dark); }
+
+    .glassmorphism { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+
+    .card { background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(16, 185, 129, 0.1); border-radius: 12px; transition: all 0.3s ease; }
+    .card:hover { background: rgba(30, 41, 59, 0.8); border-color: rgba(16, 185, 129, 0.3); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(16, 185, 129, 0.1); }
+
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    .grid-line { stroke: rgba(255, 255, 255, 0.05); stroke-width: 1; }
+    .data-line { stroke: var(--color-primary); stroke-width: 2.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+
+    .text-slate-500 { color: var(--color-text-secondary); }
+    .text-slate-400 { color: rgba(203, 213, 225, 0.7); }
+    .text-slate-300 { color: rgba(203, 213, 225, 0.9); }
+    .text-slate-100 { color: var(--color-text-primary); }
+
+    .border-white/5 { border-color: rgba(255, 255, 255, 0.05); }
+    .border-white/10 { border-color: rgba(255, 255, 255, 0.1); }
+
+    .bg-white/5 { background-color: rgba(255, 255, 255, 0.05); }
+    .bg-white/10 { background-color: rgba(255, 255, 255, 0.1); }
+
+    .backdrop-blur-2xl { backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); }
+    .backdrop-blur-xl { backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+  </style>
   <style>
     body { font-family: 'Manrope', sans-serif; }
     .chart-gradient { background: linear-gradient(180deg, rgba(19, 236, 106, 0.15) 0%, rgba(19, 236, 106, 0) 100%); }
@@ -88,74 +148,68 @@
     </div>
   </footer>
   <script src="js/api.js"></script>
-  <script>
-    document.getElementById('nav-placeholder') && (document.getElementById('nav-placeholder').innerHTML = nav());
-    const q = getQuery();
-    const ticker = (q.ticker || 'PETR4').toUpperCase();
-
-    function pathFromPoints(points) {
-      if (!points || points.length < 2) return '';
-      const min = Math.min(...points);
-      const max = Math.max(...points);
-      const range = max - min || 1;
-      const w = 400, h = 150;
-      let d = `M0,${h - ((points[0] - min) / range) * (h - 20)}`;
-      points.forEach((v, i) => {
-        if (i === 0) return;
-        const x = (i / (points.length - 1)) * w;
-        const y = h - ((v - min) / range) * (h - 20);
-        d += ` L${x},${y}`;
-      });
-      d += ` L${w},${h} L0,${h} Z`;
-      return d;
+  <style>
+    /* ===== VARIÁVEIS DE COR ===== */
+    :root {
+      --color-primary: #10B981;
+      --color-danger: #EF4444;
+      --color-bg-dark: #0F172A;
+      --color-card-dark: #1E293B;
+      --color-surface-dark: #334155;
+      --color-border: rgba(255, 255, 255, 0.1);
+      --color-text-primary: #F1F5F9;
+      --color-text-secondary: #CBD5E1;
     }
 
-    async function load() {
-      try {
-        const [stockRes, chartRes] = await Promise.all([
-          api('/api/stocks/' + ticker),
-          api('/api/stocks/' + ticker + '/chart?range=1d')
-        ]);
-        const s = stockRes.data;
-        document.getElementById('header-ticker').textContent = s.ticker;
-        document.getElementById('header-name').textContent = 'B3 • ' + (s.shortName || s.name);
-        document.getElementById('stock-name').textContent = s.name;
-        document.getElementById('stock-short').textContent = s.shortName || s.ticker;
-        document.getElementById('stock-price').textContent = 'R$ ' + Number(s.price).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        const ch = s.change >= 0 ? 'text-primary' : 'text-red-400';
-        document.getElementById('stock-change').innerHTML = `<span class="material-symbols-outlined text-sm">trending_${s.change >= 0 ? 'up' : 'down'}</span><span>${(s.change >= 0 ? '+' : '') + s.change.toFixed(2)}%</span><span class="text-xs font-medium text-slate-500 ml-1">(R$ ${(s.changeValue || 0).toFixed(2)})</span>`;
-        document.getElementById('stock-change').className = 'flex items-center justify-end gap-1 font-bold ' + ch;
+    * { box-sizing: border-box; }
 
-        if (s.logo) {
-          document.getElementById('logo-box').innerHTML = '<img alt="Logo" class="w-full h-full object-contain" src="' + s.logo + '"/>';
-        }
-        document.getElementById('about-text').textContent = s.about || 'Informações não disponíveis.';
+    html.dark { background-color: var(--color-bg-dark); color-scheme: dark; }
 
-        const points = chartRes.data?.points || [];
-        const lineD = pathFromPoints(points);
-        const areaD = lineD;
-        document.getElementById('chart-svg').innerHTML = `
-          <defs><linearGradient id="chartGradient" x1="0%" x2="0%" y1="0%" y2="100%"><stop offset="0%" style="stop-color:#13ec6a;stop-opacity:0.3"></stop><stop offset="100%" style="stop-color:#13ec6a;stop-opacity:0"></stop></linearGradient></defs>
-          <path d="${areaD}" fill="url(#chartGradient)"></path>
-          <path d="${lineD.replace(/ L\d+,\d+ Z$/, '').replace(' Z', '')}" fill="none" stroke="#13ec6a" stroke-linecap="round" stroke-width="3"></path>
-          <circle cx="400" cy="${points.length ? 20 : 75}" fill="#13ec6a" r="4"></circle>
-        `;
-
-        const f = s.fundamentals || {};
-        document.getElementById('fundamentals-grid').innerHTML = [
-          { label: 'P/L', value: f.pl },
-          { label: 'Div. Yield', value: f.dy ? f.dy + '%' : '-', cls: 'text-primary' },
-          { label: 'ROE', value: f.roe ? f.roe + '%' : '-' },
-          { label: 'P/VP', value: f.pvp }
-        ].map(x => `<div class="bg-white/5 border border-white/10 p-4 rounded-2xl"><p class="text-xs text-slate-500 mb-1">${x.label}</p><p class="text-xl font-extrabold ${x.cls || ''}">${x.value || '-'}</p></div>`).join('');
-
-        document.getElementById('btn-opcoes').href = 'opcoes.html?ticker=' + ticker;
-      } catch (e) {
-        document.getElementById('stock-name').textContent = 'Ativo não encontrado';
-        document.getElementById('about-text').textContent = 'Verifique o ticker ou a conexão com o servidor.';
-      }
+    body {
+      font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background-color: var(--color-bg-dark);
+      background-image: radial-gradient(circle at 20% 50%, rgba(16, 185, 129, 0.05) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.03) 0%, transparent 50%);
+      color: var(--color-text-primary);
+      min-height: max(884px, 100dvh);
+      line-height: 1.6;
     }
-    load();
-  </script>
+
+    .primary { color: var(--color-primary); }
+    .bg-primary { background-color: var(--color-primary); }
+    .border-primary { border-color: var(--color-primary); }
+    .text-primary { color: var(--color-primary); }
+
+    .danger { color: var(--color-danger); }
+    .text-danger { color: var(--color-danger); }
+
+    .bg-background-dark { background-color: var(--color-bg-dark); }
+    .bg-card-dark { background-color: var(--color-card-dark); }
+    .bg-surface-dark { background-color: var(--color-surface-dark); }
+
+    .glassmorphism { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+
+    .card { background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(16, 185, 129, 0.1); border-radius: 12px; transition: all 0.3s ease; }
+    .card:hover { background: rgba(30, 41, 59, 0.8); border-color: rgba(16, 185, 129, 0.3); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(16, 185, 129, 0.1); }
+
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    .grid-line { stroke: rgba(255, 255, 255, 0.05); stroke-width: 1; }
+    .data-line { stroke: var(--color-primary); stroke-width: 2.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+
+    .text-slate-500 { color: var(--color-text-secondary); }
+    .text-slate-400 { color: rgba(203, 213, 225, 0.7); }
+    .text-slate-300 { color: rgba(203, 213, 225, 0.9); }
+    .text-slate-100 { color: var(--color-text-primary); }
+
+    .border-white/5 { border-color: rgba(255, 255, 255, 0.05); }
+    .border-white/10 { border-color: rgba(255, 255, 255, 0.1); }
+
+    .bg-white/5 { background-color: rgba(255, 255, 255, 0.05); }
+    .bg-white/10 { background-color: rgba(255, 255, 255, 0.1); }
+
+    .backdrop-blur-2xl { backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); }
+    .backdrop-blur-xl { backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+  </style>
 </body>
 </html>

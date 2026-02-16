@@ -7,9 +7,69 @@
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-  <script>
-    tailwind.config = { darkMode: "class", theme: { extend: { colors: { primary: "#13ec6a", "background-dark": "#102217", danger: "#ff4d4d" }, fontFamily: { display: ["Manrope", "sans-serif"] } } } }
-  </script>
+  <style>
+    /* ===== VARIÁVEIS DE COR ===== */
+    :root {
+      --color-primary: #10B981;
+      --color-danger: #EF4444;
+      --color-bg-dark: #0F172A;
+      --color-card-dark: #1E293B;
+      --color-surface-dark: #334155;
+      --color-border: rgba(255, 255, 255, 0.1);
+      --color-text-primary: #F1F5F9;
+      --color-text-secondary: #CBD5E1;
+    }
+
+    * { box-sizing: border-box; }
+
+    html.dark { background-color: var(--color-bg-dark); color-scheme: dark; }
+
+    body {
+      font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background-color: var(--color-bg-dark);
+      background-image: radial-gradient(circle at 20% 50%, rgba(16, 185, 129, 0.05) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.03) 0%, transparent 50%);
+      color: var(--color-text-primary);
+      min-height: max(884px, 100dvh);
+      line-height: 1.6;
+    }
+
+    .primary { color: var(--color-primary); }
+    .bg-primary { background-color: var(--color-primary); }
+    .border-primary { border-color: var(--color-primary); }
+    .text-primary { color: var(--color-primary); }
+
+    .danger { color: var(--color-danger); }
+    .text-danger { color: var(--color-danger); }
+
+    .bg-background-dark { background-color: var(--color-bg-dark); }
+    .bg-card-dark { background-color: var(--color-card-dark); }
+    .bg-surface-dark { background-color: var(--color-surface-dark); }
+
+    .glassmorphism { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+
+    .card { background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(16, 185, 129, 0.1); border-radius: 12px; transition: all 0.3s ease; }
+    .card:hover { background: rgba(30, 41, 59, 0.8); border-color: rgba(16, 185, 129, 0.3); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(16, 185, 129, 0.1); }
+
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    .grid-line { stroke: rgba(255, 255, 255, 0.05); stroke-width: 1; }
+    .data-line { stroke: var(--color-primary); stroke-width: 2.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+
+    .text-slate-500 { color: var(--color-text-secondary); }
+    .text-slate-400 { color: rgba(203, 213, 225, 0.7); }
+    .text-slate-300 { color: rgba(203, 213, 225, 0.9); }
+    .text-slate-100 { color: var(--color-text-primary); }
+
+    .border-white/5 { border-color: rgba(255, 255, 255, 0.05); }
+    .border-white/10 { border-color: rgba(255, 255, 255, 0.1); }
+
+    .bg-white/5 { background-color: rgba(255, 255, 255, 0.05); }
+    .bg-white/10 { background-color: rgba(255, 255, 255, 0.1); }
+
+    .backdrop-blur-2xl { backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); }
+    .backdrop-blur-xl { backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+  </style>
   <style>
     .tabular-nums { font-variant-numeric: tabular-nums; }
     .hide-scrollbar::-webkit-scrollbar { display: none; }
@@ -55,57 +115,68 @@
   </div>
   <div id="nav-placeholder"></div>
   <script src="js/api.js"></script>
-  <script>
-    document.getElementById('nav-placeholder').innerHTML = nav();
-    const q = getQuery();
-    const ticker = (q.ticker || 'PETR4').toUpperCase();
-    const fmt = (n) => Number(n).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
-    async function load(expiration) {
-      try {
-        const r = await api('/api/options/' + ticker + '/chain?expiration=' + (expiration || 'nov24'));
-        const d = r.data;
-        document.getElementById('header-ticker').textContent = d.ticker;
-        document.getElementById('header-price').textContent = 'R$ ' + fmt(d.underlyingPrice) + ' (' + (d.underlyingPrice > 0 ? '+' : '') + '1,20%)';
-        document.querySelector('a[href="ativo.html?ticker=TICKER_PLACEHOLDER"]').href = 'ativo.html?ticker=' + d.ticker;
-
-        const sel = document.getElementById('expiration');
-        sel.innerHTML = (d.expirations || []).map(e => `<option value="${e.value}" ${e.value === (d.expiration?.value || 'nov24') ? 'selected' : ''}>${e.label}</option>`).join('');
-        sel.onchange = () => load(sel.value);
-
-        const spot = d.underlyingPrice;
-        const chain = d.chain || [];
-        let html = '';
-        let atmInserted = false;
-        chain.forEach(row => {
-          if (!atmInserted && row.strike >= spot) {
-            html += `<div class="w-full bg-primary/20 py-1 px-4 text-[9px] font-bold text-primary flex justify-between items-center uppercase tracking-widest"><span>At the money</span><span>${d.ticker} @ ${fmt(spot)}</span></div>`;
-            atmInserted = true;
-          }
-          const callITM = row.strike < spot;
-          const putITM = row.strike > spot;
-          html += `
-            <div class="grid grid-cols-7 text-[11px] font-medium border-b border-white/5 tabular-nums">
-              <div class="col-span-3 grid grid-cols-3 py-3 px-1 ${callITM ? 'bg-primary/10' : ''}">
-                <div class="text-white text-center">${fmt(row.call.last)}</div>
-                <div class="text-center ${row.call.varPct >= 0 ? 'text-primary' : 'text-danger'}">${row.call.varPct}%</div>
-                <div class="text-white/60 text-center">${(row.call.volume/1000).toFixed(0)}k</div>
-              </div>
-              <div class="col-span-1 flex items-center justify-center bg-white/5 font-bold text-white border-x border-white/10 py-3">${fmt(row.strike)}</div>
-              <div class="col-span-3 grid grid-cols-3 py-3 px-1 ${putITM ? 'bg-blue-500/10' : ''}">
-                <div class="text-white/60 text-center">${(row.put.volume/1000).toFixed(0)}k</div>
-                <div class="text-center ${row.put.varPct >= 0 ? 'text-primary' : 'text-danger'}">${row.put.varPct}%</div>
-                <div class="text-white text-center">${fmt(row.put.last)}</div>
-              </div>
-            </div>
-          `;
-        });
-        document.getElementById('chain-container').innerHTML = html || '<p class="p-4 text-slate-500">Nenhum strike disponível.</p>';
-      } catch (e) {
-        document.getElementById('chain-container').innerHTML = '<p class="p-4 text-red-400">Erro ao carregar grade. Servidor ativo?</p>';
-      }
+  <style>
+    /* ===== VARIÁVEIS DE COR ===== */
+    :root {
+      --color-primary: #10B981;
+      --color-danger: #EF4444;
+      --color-bg-dark: #0F172A;
+      --color-card-dark: #1E293B;
+      --color-surface-dark: #334155;
+      --color-border: rgba(255, 255, 255, 0.1);
+      --color-text-primary: #F1F5F9;
+      --color-text-secondary: #CBD5E1;
     }
-    load();
-  </script>
+
+    * { box-sizing: border-box; }
+
+    html.dark { background-color: var(--color-bg-dark); color-scheme: dark; }
+
+    body {
+      font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background-color: var(--color-bg-dark);
+      background-image: radial-gradient(circle at 20% 50%, rgba(16, 185, 129, 0.05) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.03) 0%, transparent 50%);
+      color: var(--color-text-primary);
+      min-height: max(884px, 100dvh);
+      line-height: 1.6;
+    }
+
+    .primary { color: var(--color-primary); }
+    .bg-primary { background-color: var(--color-primary); }
+    .border-primary { border-color: var(--color-primary); }
+    .text-primary { color: var(--color-primary); }
+
+    .danger { color: var(--color-danger); }
+    .text-danger { color: var(--color-danger); }
+
+    .bg-background-dark { background-color: var(--color-bg-dark); }
+    .bg-card-dark { background-color: var(--color-card-dark); }
+    .bg-surface-dark { background-color: var(--color-surface-dark); }
+
+    .glassmorphism { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+
+    .card { background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(16, 185, 129, 0.1); border-radius: 12px; transition: all 0.3s ease; }
+    .card:hover { background: rgba(30, 41, 59, 0.8); border-color: rgba(16, 185, 129, 0.3); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(16, 185, 129, 0.1); }
+
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    .grid-line { stroke: rgba(255, 255, 255, 0.05); stroke-width: 1; }
+    .data-line { stroke: var(--color-primary); stroke-width: 2.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+
+    .text-slate-500 { color: var(--color-text-secondary); }
+    .text-slate-400 { color: rgba(203, 213, 225, 0.7); }
+    .text-slate-300 { color: rgba(203, 213, 225, 0.9); }
+    .text-slate-100 { color: var(--color-text-primary); }
+
+    .border-white/5 { border-color: rgba(255, 255, 255, 0.05); }
+    .border-white/10 { border-color: rgba(255, 255, 255, 0.1); }
+
+    .bg-white/5 { background-color: rgba(255, 255, 255, 0.05); }
+    .bg-white/10 { background-color: rgba(255, 255, 255, 0.1); }
+
+    .backdrop-blur-2xl { backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); }
+    .backdrop-blur-xl { backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+  </style>
 </body>
 </html>

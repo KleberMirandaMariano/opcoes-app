@@ -7,9 +7,69 @@
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-  <script>
-    tailwind.config = { darkMode: "class", theme: { extend: { colors: { primary: "#13ec6a", "background-dark": "#102217" }, fontFamily: { display: ["Manrope", "sans-serif"] } } } }
-  </script>
+  <style>
+    /* ===== VARIÁVEIS DE COR ===== */
+    :root {
+      --color-primary: #10B981;
+      --color-danger: #EF4444;
+      --color-bg-dark: #0F172A;
+      --color-card-dark: #1E293B;
+      --color-surface-dark: #334155;
+      --color-border: rgba(255, 255, 255, 0.1);
+      --color-text-primary: #F1F5F9;
+      --color-text-secondary: #CBD5E1;
+    }
+
+    * { box-sizing: border-box; }
+
+    html.dark { background-color: var(--color-bg-dark); color-scheme: dark; }
+
+    body {
+      font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background-color: var(--color-bg-dark);
+      background-image: radial-gradient(circle at 20% 50%, rgba(16, 185, 129, 0.05) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.03) 0%, transparent 50%);
+      color: var(--color-text-primary);
+      min-height: max(884px, 100dvh);
+      line-height: 1.6;
+    }
+
+    .primary { color: var(--color-primary); }
+    .bg-primary { background-color: var(--color-primary); }
+    .border-primary { border-color: var(--color-primary); }
+    .text-primary { color: var(--color-primary); }
+
+    .danger { color: var(--color-danger); }
+    .text-danger { color: var(--color-danger); }
+
+    .bg-background-dark { background-color: var(--color-bg-dark); }
+    .bg-card-dark { background-color: var(--color-card-dark); }
+    .bg-surface-dark { background-color: var(--color-surface-dark); }
+
+    .glassmorphism { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+
+    .card { background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(16, 185, 129, 0.1); border-radius: 12px; transition: all 0.3s ease; }
+    .card:hover { background: rgba(30, 41, 59, 0.8); border-color: rgba(16, 185, 129, 0.3); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(16, 185, 129, 0.1); }
+
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    .grid-line { stroke: rgba(255, 255, 255, 0.05); stroke-width: 1; }
+    .data-line { stroke: var(--color-primary); stroke-width: 2.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+
+    .text-slate-500 { color: var(--color-text-secondary); }
+    .text-slate-400 { color: rgba(203, 213, 225, 0.7); }
+    .text-slate-300 { color: rgba(203, 213, 225, 0.9); }
+    .text-slate-100 { color: var(--color-text-primary); }
+
+    .border-white/5 { border-color: rgba(255, 255, 255, 0.05); }
+    .border-white/10 { border-color: rgba(255, 255, 255, 0.1); }
+
+    .bg-white/5 { background-color: rgba(255, 255, 255, 0.05); }
+    .bg-white/10 { background-color: rgba(255, 255, 255, 0.1); }
+
+    .backdrop-blur-2xl { backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); }
+    .backdrop-blur-xl { backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+  </style>
   <style> body { min-height: max(884px, 100dvh); } .no-scrollbar::-webkit-scrollbar { display: none; } </style>
 </head>
 <body class="bg-background-dark font-display text-white min-h-screen pb-24">
@@ -87,70 +147,68 @@
   </footer>
   <div id="nav-placeholder"></div>
   <script src="js/api.js"></script>
-  <script>
-    document.getElementById('nav-placeholder').innerHTML = nav();
-    let currentStrategy = 'Venda Coberta';
-    let currentTf = '2Y';
-
-    function getTf() { const r = document.querySelector('input[name="timeframe"]:checked'); return r ? r.value : '2Y'; }
-
-    async function runBacktest() {
-      try {
-        const r = await api('/api/backtest/run', { method: 'POST', body: JSON.stringify({ strategy: currentStrategy, timeframe: currentTf }) });
-        const d = r.data;
-        document.getElementById('bt-variacao').innerHTML = '<span class="material-symbols-outlined text-sm">trending_up</span> +' + (d.variacao || 42.5) + '%';
-        document.getElementById('bt-patrimonio').textContent = 'R$ ' + (d.patrimonioFinal || 0).toLocaleString('pt-BR');
-        document.getElementById('bt-periodo').textContent = (d.labels && d.labels[0] && d.labels[d.labels.length - 1]) ? d.labels[0] + ' - ' + d.labels[d.labels.length - 1] : 'Jan 22 - Jan 24';
-        const m = d.metrics || {};
-        document.getElementById('metric-acerto').textContent = (m.taxaAcerto != null ? m.taxaAcerto + '%' : '--');
-        document.getElementById('metric-pf').textContent = m.profitFactor != null ? m.profitFactor : '--';
-        document.getElementById('metric-dd').textContent = (m.maxDrawdown != null ? m.maxDrawdown + '%' : '--');
-        document.getElementById('metric-sharpe').textContent = m.sharpe != null ? m.sharpe : '--';
-        const pts = d.chartPoints || [100, 98, 102, 105, 108, 112, 115, 118, 125, 130, 142.5];
-        const w = 400, h = 150;
-        let pathD = 'M0,' + (h - (pts[0] / 150 * h));
-        pts.forEach((v, i) => { if (i > 0) pathD += ' L' + (i / (pts.length - 1) * w) + ',' + (h - (v / 150 * h)); });
-        document.getElementById('bt-svg').innerHTML = `
-          <defs><linearGradient id="chartGradient" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#13ec6a" stop-opacity="0.3"/><stop offset="100%" stop-color="#13ec6a" stop-opacity="0"/></linearGradient></defs>
-          <path d="${pathD + ' L400,' + h + ' L0,' + h + ' Z'}" fill="url(#chartGradient)"/>
-          <path d="${pathD}" fill="none" stroke="#13ec6a" stroke-linecap="round" stroke-width="3"/>
-        `;
-        const trades = d.trades || [];
-        document.getElementById('trades-list').innerHTML = trades.map(t => `
-          <div class="flex items-center justify-between p-4 bg-white/5 rounded-xl border border-white/5">
-            <div class="flex items-center gap-4">
-              <div class="w-10 h-10 rounded-full ${t.pnl >= 0 ? 'bg-primary/10' : 'bg-red-500/10'} flex items-center justify-center">
-                <span class="material-symbols-outlined ${t.pnl >= 0 ? 'text-primary' : 'text-red-500'}">sell</span>
-              </div>
-              <div>
-                <p class="font-bold text-sm">${t.symbol || ''} (${t.strategy || ''})</p>
-                <p class="text-xs text-slate-500">Entrada: ${t.entry || ''} • Saída: ${t.exit || ''}</p>
-              </div>
-            </div>
-            <div class="text-right">
-              <p class="font-bold ${t.pnl >= 0 ? 'text-primary' : 'text-red-400'} text-sm">${t.pnl >= 0 ? '+' : ''}R$ ${t.pnl}</p>
-              <p class="text-[10px] font-bold ${t.pnl >= 0 ? 'bg-primary/20 text-primary' : 'bg-red-500/20 text-red-400'} px-1.5 rounded uppercase">${(t.pct >= 0 ? '+' : '') + t.pct}%</p>
-            </div>
-          </div>
-        `).join('');
-      } catch (e) {
-        document.getElementById('bt-patrimonio').textContent = 'Erro ao carregar';
-      }
+  <style>
+    /* ===== VARIÁVEIS DE COR ===== */
+    :root {
+      --color-primary: #10B981;
+      --color-danger: #EF4444;
+      --color-bg-dark: #0F172A;
+      --color-card-dark: #1E293B;
+      --color-surface-dark: #334155;
+      --color-border: rgba(255, 255, 255, 0.1);
+      --color-text-primary: #F1F5F9;
+      --color-text-secondary: #CBD5E1;
     }
 
-    document.querySelectorAll('.bt-tab').forEach(btn => {
-      btn.onclick = () => {
-        document.querySelectorAll('.bt-tab').forEach(b => { b.classList.remove('border-primary', 'text-primary'); b.classList.add('border-transparent', 'text-slate-500'); });
-        btn.classList.add('border-primary', 'text-primary'); btn.classList.remove('border-transparent', 'text-slate-500');
-        currentStrategy = btn.dataset.strategy;
-        runBacktest();
-      };
-    });
-    document.querySelectorAll('.tf-btn').forEach(lbl => {
-      lbl.onclick = () => { currentTf = getTf(); runBacktest(); };
-    });
-    document.getElementById('btn-run').onclick = runBacktest;
-    runBacktest();
-  </script>
+    * { box-sizing: border-box; }
+
+    html.dark { background-color: var(--color-bg-dark); color-scheme: dark; }
+
+    body {
+      font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background-color: var(--color-bg-dark);
+      background-image: radial-gradient(circle at 20% 50%, rgba(16, 185, 129, 0.05) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.03) 0%, transparent 50%);
+      color: var(--color-text-primary);
+      min-height: max(884px, 100dvh);
+      line-height: 1.6;
+    }
+
+    .primary { color: var(--color-primary); }
+    .bg-primary { background-color: var(--color-primary); }
+    .border-primary { border-color: var(--color-primary); }
+    .text-primary { color: var(--color-primary); }
+
+    .danger { color: var(--color-danger); }
+    .text-danger { color: var(--color-danger); }
+
+    .bg-background-dark { background-color: var(--color-bg-dark); }
+    .bg-card-dark { background-color: var(--color-card-dark); }
+    .bg-surface-dark { background-color: var(--color-surface-dark); }
+
+    .glassmorphism { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+
+    .card { background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(16, 185, 129, 0.1); border-radius: 12px; transition: all 0.3s ease; }
+    .card:hover { background: rgba(30, 41, 59, 0.8); border-color: rgba(16, 185, 129, 0.3); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(16, 185, 129, 0.1); }
+
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    .grid-line { stroke: rgba(255, 255, 255, 0.05); stroke-width: 1; }
+    .data-line { stroke: var(--color-primary); stroke-width: 2.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+
+    .text-slate-500 { color: var(--color-text-secondary); }
+    .text-slate-400 { color: rgba(203, 213, 225, 0.7); }
+    .text-slate-300 { color: rgba(203, 213, 225, 0.9); }
+    .text-slate-100 { color: var(--color-text-primary); }
+
+    .border-white/5 { border-color: rgba(255, 255, 255, 0.05); }
+    .border-white/10 { border-color: rgba(255, 255, 255, 0.1); }
+
+    .bg-white/5 { background-color: rgba(255, 255, 255, 0.05); }
+    .bg-white/10 { background-color: rgba(255, 255, 255, 0.1); }
+
+    .backdrop-blur-2xl { backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); }
+    .backdrop-blur-xl { backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+  </style>
 </body>
 </html>
