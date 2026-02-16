@@ -504,7 +504,7 @@ const App: React.FC = () => {
                 <div className={`w-3 h-3 rounded-full ${marketStatus.isOpen ? 'bg-emerald-500 animate-pulse shadow-[0_0_15px_rgba(16,185,129,0.5)]' : 'bg-slate-600'}`} />
                 <p className={`text-2xl font-black tracking-widest ${marketStatus.isOpen ? 'text-white' : 'text-slate-500'}`}>{marketStatus.label}</p>
               </div>
-              <p className="text-[10px] text-slate-600 font-bold uppercase mt-2 tracking-widest">{marketStatus.time} BRT}</p>
+              <p className="text-[10px] text-slate-600 font-bold uppercase mt-2 tracking-widest">{marketStatus.time} BRT</p>
             </div>
           </div>
         </section>
