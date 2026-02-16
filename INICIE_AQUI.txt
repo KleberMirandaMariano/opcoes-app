@@ -1,0 +1,232 @@
+╔════════════════════════════════════════════════════════════════════════════╗
+║                                                                            ║
+║                    🚀 OPÇÕESEXPERT COM BACKEND NODE.JS                     ║
+║                                                                            ║
+║                   Seu app React com dados B3 em tempo real!                ║
+║                                                                            ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+
+📌 LEIA ISTO PRIMEIRO!
+════════════════════════════════════════════════════════════════════════════
+
+Este projeto é a integração do Opçõesexpert (React) com o backend do
+opciones-app (Node.js + Express), funcionando juntos!
+
+
+⚡ PARA COMEÇAR AGORA (2 MINUTOS)
+════════════════════════════════════════════════════════════════════════════
+
+1. Abra o terminal nesta pasta
+
+2. Execute:
+   npm install
+
+3. Depois:
+   npm run dev
+
+4. Abra no navegador:
+   http://localhost:3000
+
+✅ Pronto! Seu app React rodando com dados B3 em tempo real!
+
+
+📚 DOCUMENTAÇÃO
+════════════════════════════════════════════════════════════════════════════
+
+Leia os arquivos em ordem:
+
+1. SETUP.md                    ← Guia detalhado de setup
+2. README.md                   ← Documentação original do React
+3. backend/README.md (opcional) ← Documentação do backend
+
+
+🎯 O QUE ESTÁ RODANDO
+════════════════════════════════════════════════════════════════════════════
+
+Frontend:  http://localhost:3000  (React + TypeScript)
+Backend:   http://localhost:3001  (Express.js)
+
+Dados:     Índices (IBOV, IFIX, DOLAR, BTC)
+           Ações (PETR4, VALE3, ITUB4, BBAS3, WEGE3)
+           Opções
+           Histórico de preços
+
+Origem:    RB3 em tempo real (com fallback para dados mock)
+
+
+🔌 ARQUIVOS IMPORTANTES
+════════════════════════════════════════════════════════════════════════════
+
+services/apiService.ts         ← Serviço para chamar API do backend
+vite.config.ts                 ← Configuração do Vite (com proxy)
+package.json                   ← Scripts de inicialização
+
+
+💡 USANDO A API NO SEU CÓDIGO REACT
+════════════════════════════════════════════════════════════════════════════
+
+Importar:
+
+    import apiService from './services/apiService';
+
+Usar:
+
+    // Buscar índices
+    const indices = await apiService.getMarketIndices();
+
+    // Buscar ações em alta
+    const stocks = await apiService.getStocks('altas');
+
+    // Buscar detalhes de uma ação
+    const stock = await apiService.getStockDetail('PETR4');
+
+    // Buscar histórico (últimos 30 dias)
+    const history = await apiService.getStockHistory('PETR4', 30);
+
+    // Analisar opção (preço, gregas)
+    const analysis = await apiService.analyzeOption('PETR4', 30.00, 'call');
+
+
+🆘 PROBLEMAS?
+════════════════════════════════════════════════════════════════════════════
+
+"npm: comando não encontrado"
+→ Instale Node.js: https://nodejs.org/
+
+"Backend não conecta"
+→ Verifique se npm run dev foi executado
+→ Veja se porta 3001 está disponível
+
+"Vite proxy não funciona"
+→ Reinicie: Ctrl+C e npm run dev novamente
+
+"RB3 não responde"
+→ Isso é normal! Backend usa dados mock automaticamente
+→ Para dados reais, instale R + RB3 (veja documentação)
+
+
+🚀 PRÓXIMAS ETAPAS
+════════════════════════════════════════════════════════════════════════════
+
+1. ✅ npm run dev (rodar projeto)
+2. ✅ Abrir http://localhost:3000 (ver app)
+3. ⏭️  Usar apiService para buscar dados
+4. ⏭️  Integrar análise Gemini com dados reais
+5. ⏭️  Adicionar mais funcionalidades
+
+
+📁 ESTRUTURA DO PROJETO
+════════════════════════════════════════════════════════════════════════════
+
+opcoes-expert/
+├── App.tsx              # Componente principal React
+├── components/          # Componentes reutilizáveis
+├── services/
+│   ├── apiService.ts    # ✨ Integração com backend
+│   └── geminiService.ts # Análise com Gemini
+├── backend/             # Servidor Node.js Express
+│   ├── server.js
+│   ├── routes/          # Endpoints da API
+│   ├── services/        # RB3, Fallback, etc
+│   └── middleware/      # Validação, logging
+├── vite.config.ts       # Config Vite (com proxy)
+├── package.json         # Scripts (dev, build, etc)
+├── SETUP.md            # Guia completo
+└── README.md           # Documentação React original
+
+
+✨ SCRIPTS DISPONÍVEIS
+════════════════════════════════════════════════════════════════════════════
+
+npm run dev              → Roda frontend + backend juntos (RECOMENDADO)
+npm run dev:frontend    → Só frontend (porta 3000)
+npm run dev:backend     → Só backend (porta 3001)
+npm run build           → Build para produção
+npm run preview         → Visualizar build
+
+
+🎨 PERSONALIZAÇÕES
+════════════════════════════════════════════════════════════════════════════
+
+Mudar porta do frontend (3000):
+  → Edite vite.config.ts, seção server.port
+
+Mudar porta do backend (3001):
+  → Edite backend/server.js, const PORT
+
+Adicionar dados customizados:
+  → Edite backend/services/rb3-fallback.js
+
+Integrar com Gemini:
+  → Já está configurado! Veja geminiService.ts
+
+
+🔒 SEGURANÇA
+════════════════════════════════════════════════════════════════════════════
+
+✅ Helmet.js (headers de segurança)
+✅ CORS (controle de origem)
+✅ Session management
+✅ Validação de entrada
+✅ Logger de auditoria
+✅ RB3 Client com timeout
+
+
+🌐 ENDPOINTS DA API
+════════════════════════════════════════════════════════════════════════════
+
+GET /api/market/indices
+GET /api/market/stocks?filter=altas|baixas
+GET /api/stocks/{ticker}
+GET /api/stocks/{ticker}/history?days=30
+GET /api/options/{ticker}
+POST /api/options/analyze
+GET /api/rb3/status
+
+Veja SETUP.md para lista completa!
+
+
+❓ PERGUNTAS FREQUENTES
+════════════════════════════════════════════════════════════════════════════
+
+P: Como atualizo os dados em tempo real?
+R: Eles se atualizam automaticamente via cache com TTL 5 minutos.
+   Dados vêm da B3 em tempo real (com fallback para mock).
+
+P: Como adiciono mais ações?
+R: Edite backend/services/rb3-fallback.js
+
+P: Como faço para rodar só o backend?
+R: npm run dev:backend
+
+P: Preciso instalar R?
+R: Não é obrigatório! Dados mock funcionam perfeitamente.
+   Para RB3 real, veja documentação do opciones-app.
+
+P: Posso usar em produção?
+R: Sim! Está pronto. Só execute: npm run build
+
+
+📞 SUPORTE
+════════════════════════════════════════════════════════════════════════════
+
+Dúvidas? Consulte:
+  1. SETUP.md (guia completo)
+  2. README.md (documentação React)
+  3. backend/ (documentação backend)
+
+
+═════════════════════════════════════════════════════════════════════════════
+
+🚀 COMEÇAR AGORA:
+
+    cd /c/Users/klebe/Downloads/opcoes-expert
+    npm install
+    npm run dev
+
+Depois acesse: http://localhost:3000
+
+Bom trabalho! 🎉
+
+═════════════════════════════════════════════════════════════════════════════
