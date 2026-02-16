@@ -90,9 +90,21 @@ app.use('/api/rb3', rb3Routes);
 
 // Frontend estático (app unificado)
 const frontendPath = path.join(__dirname, '..', 'app');
+
+// Middleware para prevenir cache de arquivos HTML
+app.use((req, res, next) => {
+  if (req.path.endsWith('.html') || req.path === '/') {
+    res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
+  }
+  next();
+});
+
 app.use(express.static(frontendPath));
 app.get('*', (req, res) => {
   if (!req.path.startsWith('/api')) {
+    res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
     res.sendFile(path.join(frontendPath, 'index.html'));
   }
 });
