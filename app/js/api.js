@@ -2,34 +2,15 @@
 const API_BASE = '';
 
 async function api(path, options = {}) {
-  try {
-    const res = await fetch(API_BASE + path, {
-      headers: { 'Content-Type': 'application/json', ...options.headers },
-      ...options
-    });
-
-    if (!res.ok) {
-      let errorMessage = `HTTP ${res.status}`;
-      try {
-        const error = await res.json();
-        errorMessage = error.error || errorMessage;
-      } catch (e) {
-        // Resposta não é JSON válido
-      }
-      throw new Error(errorMessage);
-    }
-
-    const data = await res.json();
-    return data;
-  } catch (err) {
-    console.error('API Error:', err.message);
-    throw new Error(err.message || 'Erro na requisição');
-  }
+  const res = await fetch(API_BASE + path, { headers: { 'Content-Type': 'application/json', ...options.headers }, ...options });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'Erro na requisição');
+  return data;
 }
 
 function nav() {
   return `
-  <nav class="fixed bottom-0 left-0 right-0 z-50 bg-background-dark/80 backdrop-blur-2xl border-t border-white/5 px-3 pt-3 pb-8 flex justify-center gap-6">
+  <nav class="fixed bottom-0 left-0 right-0 z-50 bg-background-dark/80 backdrop-blur-2xl border-t border-white/5 px-6 pt-3 pb-8 flex justify-between items-center max-w-md mx-auto">
     <a href="index.html" class="flex flex-col items-center gap-1.5 text-primary">
       <span class="material-symbols-outlined font-variation-fill-1 text-[26px]">home</span>
       <span class="text-[10px] font-extrabold">Início</span>
@@ -47,16 +28,14 @@ function nav() {
       <span class="text-[10px] font-extrabold">Perfil</span>
     </a>
   </nav>
-  <style>
-    .font-variation-fill-1 { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
-  </style>`;
+  <style>.font-variation-fill-1 { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }</style>`;
 }
 
-function getQueryParams() {
-  const params = {};
-  location.search.slice(1).split('&').forEach(param => {
-    const [key, value] = param.split('=');
-    if (key && value) params[decodeURIComponent(key)] = decodeURIComponent(value);
+function getQuery() {
+  const p = {};
+  location.search.slice(1).split('&').forEach(s => {
+    const [k, v] = s.split('=');
+    if (k && v) p[decodeURIComponent(k)] = decodeURIComponent(v);
   });
-  return params;
+  return p;
 }
