@@ -8,19 +8,44 @@ Você precisa abrir **3 terminais** e rodar estes comandos **na ordem**:
 
 ## ✅ TERMINAL 1: API RB3 (R/Plumber)
 
-**O que digitar:**
+### ✨ OPÇÃO 1: Script Automático (RECOMENDADO - Windows)
+
+Se receber erro "Rscript não é reconhecido", use os scripts automáticos:
+
+**PowerShell:**
+```powershell
+cd C:\Users\klebe\OneDrive\Projetos\opcoes_app
+powershell -ExecutionPolicy Bypass -File run-rb3.ps1
+```
+
+**CMD:**
+```cmd
+cd C:\Users\klebe\OneDrive\Projetos\opcoes_app
+run-rb3.bat
+```
+
+✅ O script encontra R automaticamente!
+
+---
+
+### OPÇÃO 2: Caminho Completo (Se preferir)
+
+**PowerShell:**
+```powershell
+cd rb3-api
+"C:\Program Files\R\R-4.3.x\bin\Rscript.exe" run.R
+```
+
+(Substitua `4.3.x` pela sua versão de R)
+
+---
+
+### OPÇÃO 3: Método Original (Se R está no PATH)
 
 ```bash
 cd rb3-api
 Rscript run.R
 ```
-
-**Passo a passo:**
-
-1. Abra um terminal/PowerShell
-2. Navegue até a pasta do projeto (se não estiver lá)
-3. Digite: `cd rb3-api` → Enter
-4. Digite: `Rscript run.R` → Enter
 
 **Esperado ver:**
 
