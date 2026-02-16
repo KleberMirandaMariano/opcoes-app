@@ -2,9 +2,12 @@
  * Cliente para integração com API RB3
  * A API RB3 roda em http://localhost:3002
  * Este cliente consulta os dados e faz cache local
+ *
+ * Se RB3 não estiver disponível, usa fallback com dados mock
  */
 
 const logger = require('../utils/logger');
+const rb3Fallback = require('./rb3-fallback');
 
 const RB3_API_URL = process.env.RB3_API_URL || 'http://localhost:3002';
 const RB3_ENABLED = process.env.RB3_ENABLED !== 'false';
@@ -58,8 +61,8 @@ async function getIndices() {
   const available = await isRB3Available();
 
   if (!available) {
-    logger.warn('RB3 não disponível, usando fallback');
-    return null;
+    logger.warn('RB3 não disponível, usando fallback (dados mock)');
+    return rb3Fallback.getIndices();
   }
 
   return getCached('indices', async () => {
@@ -87,8 +90,8 @@ async function getStock(ticker) {
   const available = await isRB3Available();
 
   if (!available) {
-    logger.warn(`RB3 não disponível para ${ticker}`);
-    return null;
+    logger.warn(`RB3 não disponível para ${ticker}, usando fallback (dados mock)`);
+    return rb3Fallback.getStock(ticker);
   }
 
   return getCached(`stock_${ticker}`, async () => {
@@ -128,8 +131,8 @@ async function getStocksList(filter = 'altas') {
   const available = await isRB3Available();
 
   if (!available) {
-    logger.warn('RB3 não disponível para lista de ações');
-    return null;
+    logger.warn('RB3 não disponível para lista de ações, usando fallback (dados mock)');
+    return rb3Fallback.getStocksList(filter);
   }
 
   return getCached(`stocks_list_${filter}`, async () => {
@@ -156,8 +159,8 @@ async function getStockHistory(ticker, days = 30) {
   const available = await isRB3Available();
 
   if (!available) {
-    logger.warn(`RB3 não disponível para histórico de ${ticker}`);
-    return null;
+    logger.warn(`RB3 não disponível para histórico de ${ticker}, usando fallback (dados mock)`);
+    return rb3Fallback.getStockHistory(ticker, days);
   }
 
   return getCached(`history_${ticker}_${days}`, async () => {
@@ -190,12 +193,16 @@ function clearCache(key = null) {
 async function getStatus() {
   try {
     const response = await fetch(`${RB3_API_URL}/info`);
-    if (!response.ok) return { available: false };
+    if (!response.ok) {
+      logger.warn('RB3 não está disponível, usando fallback');
+      return rb3Fallback.getStatus();
+    }
 
     const data = await response.json();
     return { available: true, ...data };
   } catch (e) {
-    return { available: false, error: e.message };
+    logger.warn(`Erro ao conectar RB3: ${e.message}, usando fallback`);
+    return rb3Fallback.getStatus();
   }
 }
 
