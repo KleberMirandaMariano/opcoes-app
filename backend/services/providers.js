@@ -1,10 +1,11 @@
 /**
  * Camada de provedores de dados do mercado (Brasil).
- * Ordem: Brapi (principal) → HG Brasil (failover) → Mock local.
- * Opções: nenhuma API gratuita REST expõe grade completa; manter mock ou B3 COTAHIST.
+ * Ordem: RB3 (principal) → Brapi → HG Brasil → Mock local.
+ * RB3: Dados em tempo real direto da B3
  */
 
 const NodeCache = require('node-cache');
+const rb3Client = require('./rb3-client');
 
 const BRAPI_BASE = 'https://brapi.dev/api';
 const HG_BASE = 'https://api.hgbrasil.com/finance';
@@ -181,21 +182,40 @@ async function getIndices() {
   if (cached) return cached;
 
   let data = {};
-  if (brapiToken) {
+
+  // Tentar RB3 primeiro (dados em tempo real da B3)
+  try {
+    const rb3Data = await rb3Client.getIndices();
+    if (rb3Data && rb3Data.length > 0) {
+      const bySymbol = {};
+      rb3Data.forEach(item => {
+        bySymbol[item.symbol] = item;
+      });
+      data = bySymbol;
+    }
+  } catch (e) { /* fallback */ }
+
+  // Fallback para Brapi
+  if (Object.keys(data).length === 0 && brapiToken) {
     try {
       const bySymbol = await getBrapiIndices();
       if (Object.keys(bySymbol).length) data = bySymbol;
     } catch (e) { /* fallback */ }
   }
+
+  // Fallback para HG Brasil
   if (Object.keys(data).length === 0 && hgKey) {
     try {
       data = await getHGIndices();
     } catch (e) { /* fallback */ }
   }
+
+  // Fallback para dados mock
   if (Object.keys(data).length === 0) {
     const mock = getMockIndices();
     Object.assign(data, mock);
   }
+
   // Garantir IBOVESPA para o dashboard
   if (!data.IBOVESPA && data.BVSP) data.IBOVESPA = { ...data.BVSP, symbol: 'IBOVESPA' };
 
@@ -210,12 +230,22 @@ async function getStocksList(filter = 'altas') {
   if (cached) return cached;
 
   let result;
-  if (brapiToken) {
+
+  // Tentar RB3 primeiro
+  try {
+    const list = await rb3Client.getStocksList(filter);
+    if (list && list.length) result = list;
+  } catch (e) { /* fallback */ }
+
+  // Fallback para Brapi
+  if (!result && brapiToken) {
     try {
       const list = await getBrapiStocksList(filter);
       if (list.length) result = list;
     } catch (e) { /* fallback */ }
   }
+
+  // Fallback para dados mock
   result = result || (filter === 'baixas' ? [...stocksBaixas] : [...stocksAltas]);
   cache.set(cacheKey, result);
   return result;
@@ -228,18 +258,30 @@ async function getStock(ticker) {
   if (cached) return cached;
 
   let stock;
-  if (brapiToken || canUseBrapiWithoutToken(ticker)) {
+
+  // Tentar RB3 primeiro (dados em tempo real da B3)
+  try {
+    const q = await rb3Client.getStock(ticker);
+    if (q) stock = q;
+  } catch (e) { /* fallback */ }
+
+  // Fallback para Brapi
+  if (!stock && (brapiToken || canUseBrapiWithoutToken(ticker))) {
     try {
       const q = await getBrapiQuote(ticker);
       if (q) stock = q;
     } catch (e) { /* fallback */ }
   }
+
+  // Fallback para HG Brasil
   if (!stock && hgKey) {
     try {
       const q = await getHGStockPrice(ticker);
       if (q) stock = q;
     } catch (e) { /* fallback */ }
   }
+
+  // Fallback para dados mock
   if (!stock) {
     stock = mockStocks[ticker];
     if (!stock) {

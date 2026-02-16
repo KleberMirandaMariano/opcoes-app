@@ -20,6 +20,7 @@ const ordersRoutes = require('./routes/orders');
 const strategiesRoutes = require('./routes/strategies');
 const backtestRoutes = require('./routes/backtest');
 const settingsRoutes = require('./routes/settings');
+const rb3Routes = require('./routes/rb3');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -85,6 +86,7 @@ app.use('/api/orders', ordersRoutes);
 app.use('/api/strategies', strategiesRoutes);
 app.use('/api/backtest', backtestRoutes);
 app.use('/api/settings', settingsRoutes);
+app.use('/api/rb3', rb3Routes);
 
 // Frontend estático (app unificado)
 const frontendPath = path.join(__dirname, '..', 'app');
