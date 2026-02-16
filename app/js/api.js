@@ -29,31 +29,26 @@ async function api(path, options = {}) {
 
 function nav() {
   return `
-  <nav class="fixed bottom-0 left-0 right-0 z-50 bg-background-dark/80 backdrop-blur-2xl border-t border-white/5 px-3 pt-3 pb-8 flex justify-center gap-6
-              md:fixed md:left-0 md:top-0 md:bottom-auto md:right-auto md:w-64 md:border-r md:border-t-0 md:border-b-0
-              md:flex-col md:h-screen md:pb-0 md:gap-2 md:px-6 md:overflow-y-auto">
-    <a href="index.html" class="flex flex-col items-center gap-1.5 text-primary md:text-left md:flex-row md:gap-3 md:px-3 md:py-2 md:rounded hover:bg-white/5">
+  <nav class="fixed bottom-0 left-0 right-0 z-50 bg-background-dark/80 backdrop-blur-2xl border-t border-white/5 px-3 pt-3 pb-8 flex justify-center gap-6">
+    <a href="index.html" class="flex flex-col items-center gap-1.5 text-primary">
       <span class="material-symbols-outlined font-variation-fill-1 text-[26px]">home</span>
-      <span class="text-[10px] font-extrabold md:text-sm">Início</span>
+      <span class="text-[10px] font-extrabold">Início</span>
     </a>
-    <a href="ativos.html" class="flex flex-col items-center gap-1.5 text-slate-500 hover:text-slate-300 transition-colors md:text-left md:flex-row md:gap-3 md:px-3 md:py-2 md:rounded">
+    <a href="ativos.html" class="flex flex-col items-center gap-1.5 text-slate-500 hover:text-slate-300 transition-colors">
       <span class="material-symbols-outlined text-[26px]">analytics</span>
-      <span class="text-[10px] font-extrabold md:text-sm">Ativos</span>
+      <span class="text-[10px] font-extrabold">Ativos</span>
     </a>
-    <a href="carteira.html" class="flex flex-col items-center gap-1.5 text-slate-500 hover:text-slate-300 transition-colors md:text-left md:flex-row md:gap-3 md:px-3 md:py-2 md:rounded">
+    <a href="carteira.html" class="flex flex-col items-center gap-1.5 text-slate-500 hover:text-slate-300 transition-colors">
       <span class="material-symbols-outlined text-[26px]">pie_chart</span>
-      <span class="text-[10px] font-extrabold md:text-sm">Carteira</span>
+      <span class="text-[10px] font-extrabold">Carteira</span>
     </a>
-    <a href="config.html" class="flex flex-col items-center gap-1.5 text-slate-500 hover:text-slate-300 transition-colors md:text-left md:flex-row md:gap-3 md:px-3 md:py-2 md:rounded">
+    <a href="config.html" class="flex flex-col items-center gap-1.5 text-slate-500 hover:text-slate-300 transition-colors">
       <span class="material-symbols-outlined text-[26px]">person</span>
-      <span class="text-[10px] font-extrabold md:text-sm">Perfil</span>
+      <span class="text-[10px] font-extrabold">Perfil</span>
     </a>
   </nav>
   <style>
     .font-variation-fill-1 { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
-    @media (min-width: 768px) {
-      body { margin-left: 256px; }
-    }
   </style>`;
 }
 
