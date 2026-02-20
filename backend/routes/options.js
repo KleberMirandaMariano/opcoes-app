@@ -2,11 +2,13 @@ const express = require('express');
 const router = express.Router();
 const { stocks } = require('../data/stocks');
 const { buildOptionsChain, expirations } = require('../data/options');
+const rb3Client = require('../services/rb3-client');
+const providers = require('../services/providers');
 const { validateTicker } = require('../middleware/validators');
 
-router.get('/:ticker/chain', validateTicker, (req, res) => {
+router.get('/:ticker/chain', validateTicker, async (req, res) => {
   try {
-    const ticker = req.params.ticker;
+    const ticker = req.params.ticker.toUpperCase();
     const expiration = req.query.expiration || 'nov24';
 
     // Validar expiration
@@ -14,9 +16,25 @@ router.get('/:ticker/chain', validateTicker, (req, res) => {
       return res.status(400).json({ success: false, error: 'Vencimento inválido' });
     }
 
-    const stock = stocks[ticker];
-    const underlyingPrice = stock ? stock.price : 36.45;
-    const chain = buildOptionsChain(underlyingPrice, ticker);
+    // Tentar obter preço atual do provedor unificado
+    let underlyingPrice = 36.45;
+    try {
+      const stock = await providers.getStock(ticker);
+      if (stock) underlyingPrice = stock.price;
+    } catch (e) {
+      const stock = stocks[ticker];
+      if (stock) underlyingPrice = stock.price;
+    }
+
+    // Tentar obter cadeia de opções do RB3
+    let chain;
+    try {
+      chain = await rb3Client.getOptionsChain(ticker);
+    } catch (e) {
+      // Fallback para mock se RB3 falhar
+      chain = buildOptionsChain(underlyingPrice, ticker);
+    }
+
     const exp = expirations.find(e => e.value === expiration) || expirations[0];
 
     res.json({
@@ -26,7 +44,7 @@ router.get('/:ticker/chain', validateTicker, (req, res) => {
         underlyingPrice,
         expiration: exp,
         expirations,
-        chain
+        chain: chain || []
       }
     });
   } catch (e) {

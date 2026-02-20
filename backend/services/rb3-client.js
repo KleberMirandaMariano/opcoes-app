@@ -175,6 +175,28 @@ async function getStockHistory(ticker, days = 30) {
 }
 
 /**
+ * Obtém cadeia de opções de uma ação
+ */
+async function getOptionsChain(ticker) {
+  const available = await isRB3Available();
+
+  if (!available) {
+    logger.warn(`RB3 não disponível para opções de ${ticker}, usando fallback (dados mock)`);
+    return rb3Fallback.getOptionsChain ? rb3Fallback.getOptionsChain(ticker) : null;
+  }
+
+  return getCached(`options_${ticker}`, async () => {
+    const response = await fetch(`${RB3_API_URL}/options/${ticker}`);
+    if (!response.ok) throw new Error(`RB3: ${response.status}`);
+
+    const result = await response.json();
+    if (!result.success) throw new Error(result.error);
+
+    return result.data;
+  });
+}
+
+/**
  * Limpa cache
  */
 function clearCache(key = null) {
@@ -211,6 +233,7 @@ module.exports = {
   getStock,
   getStocksList,
   getStockHistory,
+  getOptionsChain,
   isRB3Available,
   clearCache,
   getStatus
