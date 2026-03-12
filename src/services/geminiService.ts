@@ -6,23 +6,16 @@ import { StockData, OptionData, MarketInsight } from "../types";
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 /**
- * Interface for the internal search response with grounding metadata
- */
-interface SearchResponse extends StockData {
-  sources?: { title: string; uri: string }[];
-}
-
-/**
  * Busca dados reais da B3 (preço, nome e variação) usando busca do Google
  */
-export const fetchStockDataFromB3 = async (ticker: string): Promise<SearchResponse> => {
+export const fetchStockDataFromB3 = async (ticker: string): Promise<StockData> => {
   try {
     const prompt = `Encontre o preço atual de fechamento ou cotação em tempo real, o nome oficial da empresa e a variação percentual do dia para o ticker ${ticker} na B3 (Brasil). 
     Responda APENAS com um objeto JSON válido, sem qualquer texto adicional ou formatação Markdown.
     Formato: {"ticker": "${ticker}", "name": "Nome da Empresa", "currentPrice": 0.00, "change": 0.00, "changePercent": 0.00}. Use ponto (.) como separador decimal.`;
 
     const response = await ai.models.generateContent({
-      model: "gemini-3-pro-preview",
+      model: "gemini-2.0-flash",
       contents: prompt,
       config: {
         tools: [{ googleSearch: {} }],
@@ -78,13 +71,13 @@ export const fetchStockDataFromB3 = async (ticker: string): Promise<SearchRespon
     const change = parseFloat(String(result.change).replace(',', '.')) || 0;
     const changePercent = parseFloat(String(result.changePercent).replace(',', '.')) || 0;
 
-    const finalResult: SearchResponse = {
+    const finalResult: StockData = {
       ticker: (result.ticker || ticker).toUpperCase(),
       name: result.name || "Empresa Desconhecida",
-      currentPrice: currentPrice,
-      change: change,
-      changePercent: changePercent,
-      sources: sources
+      currentPrice,
+      change,
+      changePercent,
+      sources,
     };
 
     console.log(`[${ticker}] Final Parsed Stock Data:`, finalResult); // Log final parsed result
@@ -103,7 +96,7 @@ export const fetchStockDataFromB3 = async (ticker: string): Promise<SearchRespon
       currentPrice: 0,
       change: 0,
       changePercent: 0,
-      sources: []
+      sources: [],
     };
   }
 };
@@ -122,7 +115,7 @@ export const getMarketInsights = async (
     Explique o cenário atual de volatilidade e liquidez. Forneça um resumo do sentimento e uma recomendação.`;
 
     const response = await ai.models.generateContent({
-      model: "gemini-3-pro-preview",
+      model: "gemini-2.0-flash",
       contents: prompt,
       config: {
         responseMimeType: "application/json",

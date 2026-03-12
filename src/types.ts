@@ -16,6 +16,7 @@ export interface StockData {
   currentPrice: number;
   change: number;
   changePercent: number;
+  sources?: { title: string; uri: string }[];
 }
 
 export interface OptionData {
@@ -23,17 +24,16 @@ export interface OptionData {
   ticker: string;
   type: OptionType;
   strike: number;
-  bidPrice: number; // Preço que o mercado paga (venda do usuário)
-  askPrice: number; // Preço que o mercado cobra (compra do usuário)
-  premium: number;  // Preço médio
+  bidPrice: number;    // Preço que o mercado paga (venda do usuário)
+  askPrice: number;    // Preço que o mercado cobra (compra do usuário)
+  premium: number;     // Preço médio
   expiry: string;
   status: MoneyStatus;
-  // Novas propriedades para as "Gregas"
-  impliedVolatility?: number;
-  delta?: number;
-  gamma?: number;
-  theta?: number;
-  vega?: number;
+  impliedVolatility: number;
+  delta: number;
+  gamma: number;
+  theta: number;
+  vega: number;
 }
 
 export interface MarketInsight {
