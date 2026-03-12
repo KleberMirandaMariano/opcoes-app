@@ -5,10 +5,14 @@
 
 const API_BASE = '/api';
 
-interface ApiResponse<T> {
-  data?: T;
-  error?: string;
-  status: number;
+// Aproximação da função de erro (Abramowitz & Stegun, erro máx. 1.5e-7)
+// Necessário pois Math.erf() não faz parte do padrão ECMAScript
+function erf(x: number): number {
+  const sign = x >= 0 ? 1 : -1;
+  x = Math.abs(x);
+  const t = 1.0 / (1.0 + 0.3275911 * x);
+  const poly = t * (0.254829592 + t * (-0.284496736 + t * (1.421413741 + t * (-1.453152027 + t * 1.061405429))));
+  return sign * (1.0 - poly * Math.exp(-x * x));
 }
 
 /**
@@ -149,10 +153,7 @@ export function simulateOptionPrice(
   const d1 = (Math.log(stockPrice / strikePrice) + (riskFreeRate + Math.pow(volatility, 2) / 2) * timeToExpiry) / (volatility * Math.sqrt(timeToExpiry));
   const d2 = d1 - volatility * Math.sqrt(timeToExpiry);
 
-  const N = (x: number) => {
-    const cdf = 0.5 * (1 + Math.erf(x / Math.sqrt(2)));
-    return cdf;
-  };
+  const N = (x: number) => 0.5 * (1 + erf(x / Math.sqrt(2)));
 
   if (isCall) {
     return stockPrice * N(d1) - strikePrice * Math.exp(-riskFreeRate * timeToExpiry) * N(d2);
@@ -175,7 +176,7 @@ export function calculateGreeks(
   const d1 = (Math.log(stockPrice / strikePrice) + (riskFreeRate + Math.pow(volatility, 2) / 2) * timeToExpiry) / (volatility * Math.sqrt(timeToExpiry));
   const d2 = d1 - volatility * Math.sqrt(timeToExpiry);
 
-  const N = (x: number) => 0.5 * (1 + Math.erf(x / Math.sqrt(2)));
+  const N = (x: number) => 0.5 * (1 + erf(x / Math.sqrt(2)));
   const n = (x: number) => Math.exp(-Math.pow(x, 2) / 2) / Math.sqrt(2 * Math.PI);
 
   const delta = isCall ? N(d1) : N(d1) - 1;

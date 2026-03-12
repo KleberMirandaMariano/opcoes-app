@@ -1,199 +1,64 @@
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { 
-  TrendingUp, 
-  TrendingDown, 
-  Search, 
-  Info, 
-  RefreshCw, 
-  PieChart, 
-  ArrowRightLeft, 
-  ChevronRight, 
-  Sparkles, 
-  Plus, 
-  Loader2, 
-  Globe, 
-  ShieldCheck, 
-  Target, 
-  Zap, 
-  ArrowUpRight, 
+import {
+  TrendingUp,
+  TrendingDown,
+  Search,
+  Info,
+  RefreshCw,
+  PieChart,
+  ArrowRightLeft,
+  ChevronRight,
+  Sparkles,
+  Plus,
+  Loader2,
+  Globe,
+  ShieldCheck,
+  Target,
+  Zap,
+  ArrowUpRight,
   ArrowDownRight,
   CalendarDays,
   Clock,
   ExternalLink,
-  ChevronDown, // New icon for expanded rows
-  Activity, // For Implied Volatility
-  Sigma,    // For Delta
-  Wind,     // For Gamma (representing curvature)
-  Thermometer, // For Theta (representing time decay) - changed from Clock to avoid confusion
-  HeartHandshake // For Vega (representing sensitivity to volatility) - changed from Zap
+  ChevronDown,
+  Activity,
+  Sigma,
+  Wind,
+  Thermometer,
+  HeartHandshake,
+  X,
 } from 'lucide-react';
-import { 
-  OptionType, 
-  MoneyStatus, 
-  StockData, 
-  OptionData, 
-  MarketInsight 
+import {
+  OptionType,
+  MoneyStatus,
+  StockData,
+  OptionData,
+  MarketInsight,
 } from './types';
 import { getMarketInsights, fetchStockDataFromB3 } from './services/geminiService';
 import OptionBadge from './components/OptionBadge';
-import { 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  Tooltip, 
-  ResponsiveContainer, 
-  Cell 
+import { getFutureExpiryDates, getMarketStatusInfo } from './utils/market';
+import { generateOptionsForStock } from './utils/optionsGenerator';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  Cell,
 } from 'recharts';
 
-const INITIAL_STOCK: StockData = { 
-  ticker: 'PETR4', 
-  name: 'Petrobras PN', 
-  currentPrice: 38.50, 
-  change: 0.45, 
-  changePercent: 1.18 
-};
-
-/**
- * Calcula as próximas datas de vencimento (3ª sexta-feira de cada mês, padrão atual B3)
- */
-const getFutureExpiryDates = (count: number = 4): string[] => {
-  const dates: string[] = [];
-  let current = new Date();
-  
-  while (dates.length < count) {
-    let year = current.getFullYear();
-    let month = current.getMonth();
-    
-    let firstDayOfMonth = new Date(year, month, 1);
-    let dayOfWeek = firstDayOfMonth.getDay();
-    let firstFriday = (dayOfWeek <= 5) ? (5 - dayOfWeek + 1) : (5 - dayOfWeek + 8);
-    let thirdFriday = new Date(year, month, firstFriday + 14);
-    
-    if (thirdFriday > new Date()) {
-      dates.push(thirdFriday.toLocaleDateString('pt-BR'));
-    }
-    
-    current.setMonth(current.getMonth() + 1);
-  }
-  return dates;
+const INITIAL_STOCK: StockData = {
+  ticker: 'PETR4',
+  name: 'Petrobras PN',
+  currentPrice: 38.50,
+  change: 0.45,
+  changePercent: 1.18,
 };
 
 const EXPIRY_DATES = getFutureExpiryDates();
-
-const getMarketStatusInfo = () => {
-  const now = new Date();
-  const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
-  const brt = new Date(utc + (3600000 * -3));
-  
-  const day = brt.getDay();
-  const hours = brt.getHours();
-  const isOpen = day >= 1 && day <= 5 && hours >= 10 && hours < 18;
-
-  return {
-    isOpen,
-    label: isOpen ? 'ABERTO' : 'FECHADO',
-    time: brt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
-  };
-};
-
-const generateOptionsForStock = (stock: StockData, expiry: string): OptionData[] => {
-  const price = stock.currentPrice;
-  if (price <= 0) return [];
-
-  const expiryIndex = EXPIRY_DATES.indexOf(expiry);
-  const timeFactor = 1 + (expiryIndex * 0.15); // Longer expiry, more time value / implied volatility
-  const volatilityBase = 0.20 + (expiryIndex * 0.05); // Base volatility increases with time
-
-  const baseStrike = Math.round(price);
-  const strikes = [
-    baseStrike - 2,
-    baseStrike - 1,
-    baseStrike,
-    baseStrike + 1,
-    baseStrike + 2,
-  ].filter(s => s > 0);
-
-  const options: OptionData[] = [];
-  const atmThreshold = price * 0.012;
-
-  strikes.forEach((strike, idx) => {
-    // --- Geração de CALLS ---
-    let callStatus: MoneyStatus;
-    if (Math.abs(strike - price) <= atmThreshold) callStatus = MoneyStatus.ATM;
-    else if (strike < price) callStatus = MoneyStatus.ITM;
-    else callStatus = MoneyStatus.OTM;
-
-    const callIntrinsic = Math.max(0, price - strike);
-    const callTimeValue = ((Math.random() * 0.4) + 0.1) * timeFactor;
-    const baseCallPremium = callIntrinsic + (callStatus === MoneyStatus.OTM ? callTimeValue * 0.4 : callTimeValue);
-    const callSpread = Math.max(0.01, baseCallPremium * 0.03);
-
-    // Gerando Gregas para CALLS (valores simulados)
-    const callDelta = callStatus === MoneyStatus.ITM ? (0.7 + Math.random() * 0.2).toFixed(2) :
-                      callStatus === MoneyStatus.ATM ? (0.4 + Math.random() * 0.2).toFixed(2) :
-                      (0.1 + Math.random() * 0.2).toFixed(2);
-    const callGamma = (Math.random() * 0.08 + 0.02).toFixed(3); // Higher for ATM
-    const callTheta = (-0.05 - Math.random() * 0.1).toFixed(3); // Negative time decay
-    const callVega = (0.1 + Math.random() * 0.1).toFixed(3); // Sensitivity to volatility
-
-    options.push({
-      id: `CALL-${stock.ticker}-${strike}-${idx}-${expiry}`,
-      ticker: `${stock.ticker}${String.fromCharCode(65 + expiryIndex)}${Math.round(strike)}`,
-      type: OptionType.CALL,
-      strike: strike,
-      bidPrice: Number((baseCallPremium - callSpread / 2).toFixed(2)),
-      askPrice: Number((baseCallPremium + callSpread / 2).toFixed(2)),
-      premium: Number(baseCallPremium.toFixed(2)),
-      expiry: expiry,
-      status: callStatus,
-      impliedVolatility: Number((volatilityBase + Math.random() * 0.1).toFixed(3)),
-      delta: Number(callDelta),
-      gamma: Number(callGamma),
-      theta: Number(callTheta),
-      vega: Number(callVega),
-    });
-
-    // --- Geração de PUTS ---
-    let putStatus: MoneyStatus;
-    if (Math.abs(strike - price) <= atmThreshold) putStatus = MoneyStatus.ATM;
-    else if (strike > price) putStatus = MoneyStatus.ITM;
-    else putStatus = MoneyStatus.OTM;
-
-    const putIntrinsic = Math.max(0, strike - price);
-    const putTimeValue = ((Math.random() * 0.35) + 0.1) * timeFactor;
-    const basePutPremium = putIntrinsic + (putStatus === MoneyStatus.OTM ? putTimeValue * 0.4 : putTimeValue);
-    const putSpread = Math.max(0.01, basePutPremium * 0.03);
-
-    // Gerando Gregas para PUTS (valores simulados)
-    const putDelta = putStatus === MoneyStatus.ITM ? (-0.7 - Math.random() * 0.2).toFixed(2) :
-                      putStatus === MoneyStatus.ATM ? (-0.4 + Math.random() * 0.2).toFixed(2) :
-                      (-0.1 - Math.random() * 0.2).toFixed(2);
-    const putGamma = (Math.random() * 0.08 + 0.02).toFixed(3); // Higher for ATM
-    const putTheta = (-0.05 - Math.random() * 0.1).toFixed(3); // Negative time decay
-    const putVega = (0.1 + Math.random() * 0.1).toFixed(3); // Sensitivity to volatility
-
-    options.push({
-      id: `PUT-${stock.ticker}-${strike}-${idx}-${expiry}`,
-      ticker: `${stock.ticker}${String.fromCharCode(77 + expiryIndex)}${Math.round(strike)}`,
-      type: OptionType.PUT,
-      strike: strike,
-      bidPrice: Number((basePutPremium - putSpread / 2).toFixed(2)),
-      askPrice: Number((basePutPremium + putSpread / 2).toFixed(2)),
-      premium: Number(basePutPremium.toFixed(2)),
-      expiry: expiry,
-      status: putStatus,
-      impliedVolatility: Number((volatilityBase + Math.random() * 0.1).toFixed(3)),
-      delta: Number(putDelta),
-      gamma: Number(putGamma),
-      theta: Number(putTheta),
-      vega: Number(putVega),
-    });
-  });
-
-  return options;
-};
 
 const App: React.FC = () => {
   const [stocks, setStocks] = useState<StockData[]>([INITIAL_STOCK]);
@@ -202,82 +67,72 @@ const App: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [options, setOptions] = useState<OptionData[]>([]);
   const [insights, setInsights] = useState<MarketInsight | null>(null);
-  const [sources, setSources] = useState<{title: string, uri: string}[]>([]);
   const [loading, setLoading] = useState(false);
   const [searching, setSearching] = useState(false);
   const [activeTab, setActiveTab] = useState<OptionType>(OptionType.CALL);
   const [marketStatus, setMarketStatus] = useState(getMarketStatusInfo());
-  // New states for API Key management and expanded row
-  const [apiKeySelected, setApiKeySelected] = useState<boolean>(true); // Assume true initially
+  const [apiKeySelected, setApiKeySelected] = useState<boolean>(true);
   const [showApiKeyPrompt, setShowApiKeyPrompt] = useState<boolean>(false);
   const [expandedOptionId, setExpandedOptionId] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Check API Key status on mount
+  // Verifica disponibilidade de chave API ao montar
   useEffect(() => {
     const checkApiKey = async () => {
-      // Use window.aistudio only if it exists
-      if (window.aistudio && typeof window.aistudio.hasSelectedApiKey === 'function') {
+      if (window.aistudio?.hasSelectedApiKey) {
         const hasKey = await window.aistudio.hasSelectedApiKey();
         setApiKeySelected(hasKey);
         setShowApiKeyPrompt(!hasKey);
-      } else {
-        // Fallback if window.aistudio is not available (e.g., local development without platform)
-        console.warn("window.aistudio not available. Assuming API key is selected or will be handled externally.");
-        setApiKeySelected(true); 
-        setShowApiKeyPrompt(false);
       }
+      // Se window.aistudio não existir, assume chave disponível (dev local)
     };
     checkApiKey();
   }, []);
 
-  // Market status timer
+  // Atualiza status do mercado a cada 30s
   useEffect(() => {
-    const timer = setInterval(() => {
-      setMarketStatus(getMarketStatusInfo());
-    }, 30000);
+    const timer = setInterval(() => setMarketStatus(getMarketStatusInfo()), 30000);
     return () => clearInterval(timer);
   }, []);
 
-  // Fetch options and AI insights
+  // Busca opções e insights de IA ao trocar de ativo, vencimento ou chave API
   useEffect(() => {
-    if (selectedStock.currentPrice > 0) {
-      const newOptions = generateOptionsForStock(selectedStock, selectedExpiry);
-      setOptions(newOptions);
-      
-      const fetchAI = async () => {
-        if (!apiKeySelected) {
-          console.warn("API Key not selected. Skipping AI insights.");
-          setShowApiKeyPrompt(true);
-          setInsights(null); // Clear previous insights if key is missing
-          return;
-        }
-
-        setLoading(true);
-        try {
-          const data = await getMarketInsights(selectedStock, newOptions);
-          setInsights(data);
-        } catch (error: any) {
-          console.error("Erro ao buscar insights do Gemini:", error);
-          if (error.message === "API_QUOTA_EXCEEDED") {
-            setApiKeySelected(false);
-            setShowApiKeyPrompt(true);
-            setInsights(null);
-          } else {
-             // Handle other errors gracefully
-            setInsights({
-              summary: "Análise indisponível temporariamente devido a um erro inesperado.",
-              sentiment: "neutral",
-              recommendation: "Tente novamente mais tarde."
-            });
-          }
-        } finally {
-          setLoading(false);
-        }
-      };
-      fetchAI();
-    } else {
-      setInsights(null); // Clear insights if stock price is invalid
+    if (selectedStock.currentPrice <= 0) {
+      setInsights(null);
+      return;
     }
+
+    const newOptions = generateOptionsForStock(selectedStock, selectedExpiry, EXPIRY_DATES);
+    setOptions(newOptions);
+
+    if (!apiKeySelected) {
+      setShowApiKeyPrompt(true);
+      setInsights(null);
+      return;
+    }
+
+    let cancelled = false;
+    setLoading(true);
+
+    getMarketInsights(selectedStock, newOptions)
+      .then(data => { if (!cancelled) setInsights(data); })
+      .catch((error: Error) => {
+        if (cancelled) return;
+        if (error.message === 'API_QUOTA_EXCEEDED') {
+          setApiKeySelected(false);
+          setShowApiKeyPrompt(true);
+          setInsights(null);
+        } else {
+          setInsights({
+            summary: 'Análise indisponível temporariamente devido a um erro inesperado.',
+            sentiment: 'neutral',
+            recommendation: 'Tente novamente mais tarde.',
+          });
+        }
+      })
+      .finally(() => { if (!cancelled) setLoading(false); });
+
+    return () => { cancelled = true; };
   }, [selectedStock.ticker, selectedStock.currentPrice, selectedExpiry, apiKeySelected]);
 
   const handleSearch = async (e: React.FormEvent) => {
@@ -286,35 +141,28 @@ const App: React.FC = () => {
     if (!ticker) return;
 
     if (!apiKeySelected) {
-      console.warn("API Key not selected. Skipping stock search.");
       setShowApiKeyPrompt(true);
-      alert("Por favor, selecione sua chave API para realizar buscas.");
       return;
     }
 
-    console.log("Iniciando busca para ticker:", ticker); // Log search input
     setSearching(true);
+    setErrorMessage(null);
+
     try {
       const result = await fetchStockDataFromB3(ticker);
-      console.log("Resultado da busca para", ticker, ":", result); // Log search result
       if (result.currentPrice > 0) {
-        setStocks(prev => {
-          const filtered = prev.filter(s => s.ticker !== ticker);
-          return [result, ...filtered].slice(0, 5);
-        });
+        setStocks(prev => [result, ...prev.filter(s => s.ticker !== ticker)].slice(0, 5));
         setSelectedStock(result);
-        setSources(result.sources || []);
       } else {
-        alert(`Ticker '${ticker}' não encontrado ou dados inválidos. Verifique o console do navegador para mais detalhes.`);
+        setErrorMessage(`Ticker '${ticker}' não encontrado ou sem dados disponíveis.`);
       }
-    } catch (err: any) {
-      console.error("Erro na função handleSearch:", err); // Log more context for error
-      if (err.message === "API_QUOTA_EXCEEDED") {
+    } catch (err: unknown) {
+      const error = err as Error;
+      if (error.message === 'API_QUOTA_EXCEEDED') {
         setApiKeySelected(false);
         setShowApiKeyPrompt(true);
-        alert(`Sua cota de API foi excedida ou há um problema de faturamento. Por favor, selecione sua chave API paga.`);
       } else {
-        alert(`Houve um erro ao processar sua busca para '${ticker}'. Verifique o console do navegador para detalhes.`);
+        setErrorMessage(`Erro ao buscar '${ticker}'. Verifique o ticker e tente novamente.`);
       }
     } finally {
       setSearching(false);
@@ -322,47 +170,26 @@ const App: React.FC = () => {
     }
   };
 
+  // Abre seletor de chave API; o useEffect re-dispara automaticamente após apiKeySelected mudar
   const handleSelectApiKey = useCallback(async () => {
-    if (window.aistudio && typeof window.aistudio.openSelectKey === 'function') {
+    if (window.aistudio?.openSelectKey) {
       await window.aistudio.openSelectKey();
-      // Assume key selection was successful, immediately allow API calls
-      setApiKeySelected(true); 
+      setApiKeySelected(true);
       setShowApiKeyPrompt(false);
-      // Re-trigger data fetch for insights
-      if (selectedStock.currentPrice > 0) {
-        const newOptions = generateOptionsForStock(selectedStock, selectedExpiry);
-        setOptions(newOptions);
-        setLoading(true);
-        getMarketInsights(selectedStock, newOptions).then(data => {
-          setInsights(data);
-        }).catch(error => {
-          console.error("Erro ao re-buscar insights após seleção de chave:", error);
-          // If it fails again, it means the selected key might still be invalid/unpaid
-          if (error.message === "API_QUOTA_EXCEEDED") {
-            setApiKeySelected(false);
-            setShowApiKeyPrompt(true);
-          }
-        }).finally(() => {
-          setLoading(false);
-        });
-      }
     } else {
-      alert("Funcionalidade de seleção de chave API indisponível. Por favor, configure sua chave API manualmente.");
+      setErrorMessage('Seleção de chave API indisponível. Configure sua chave manualmente.');
     }
-  }, [selectedStock, selectedExpiry]);
+  }, []);
 
+  const filteredOptions = useMemo(
+    () => options.filter(o => o.type === activeTab).sort((a, b) => a.strike - b.strike),
+    [options, activeTab]
+  );
 
-  const filteredOptions = useMemo(() => {
-    return options.filter(o => o.type === activeTab).sort((a, b) => a.strike - b.strike);
-  }, [options, activeTab]);
-
-  const chartData = useMemo(() => {
-    return filteredOptions.map(o => ({
-      strike: `R$ ${o.strike.toFixed(2)}`,
-      premium: o.premium,
-      status: o.status
-    }));
-  }, [filteredOptions]);
+  const chartData = useMemo(
+    () => filteredOptions.map(o => ({ strike: `R$ ${o.strike.toFixed(2)}`, premium: o.premium, status: o.status })),
+    [filteredOptions]
+  );
 
   const getStatusColor = (status: MoneyStatus) => {
     if (status === MoneyStatus.ITM) return '#10b981';
@@ -387,7 +214,7 @@ const App: React.FC = () => {
   };
 
   const handleRowClick = (optionId: string) => {
-    setExpandedOptionId(prevId => (prevId === optionId ? null : optionId));
+    setExpandedOptionId(prev => (prev === optionId ? null : optionId));
   };
 
   return (
@@ -396,8 +223,8 @@ const App: React.FC = () => {
       {showApiKeyPrompt && (
         <div className="fixed top-0 left-0 w-full bg-rose-800 text-white p-4 z-[9999] shadow-lg flex flex-col md:flex-row items-center justify-center gap-4 text-sm font-medium">
           <Info className="w-5 h-5" />
-          <span>É necessária uma chave API paga. Sua cota de API pode ter sido excedida ou a chave não está configurada.</span>
-          <button 
+          <span>É necessária uma chave API paga. Sua cota pode ter sido excedida ou a chave não está configurada.</span>
+          <button
             onClick={handleSelectApiKey}
             className="bg-white text-rose-800 px-4 py-2 rounded-lg font-bold hover:bg-rose-100 transition-colors active:scale-95 flex items-center gap-2"
           >
@@ -410,7 +237,20 @@ const App: React.FC = () => {
         </div>
       )}
 
-      <header className="sticky top-0 z-50 bg-slate-900/90 backdrop-blur-2xl border-b border-slate-800 px-6 py-4 shadow-xl">
+      {/* Error Message Banner */}
+      {errorMessage && (
+        <div className="fixed top-0 left-0 w-full bg-amber-700 text-white p-4 z-[9998] shadow-lg flex items-center justify-between gap-4 text-sm font-medium">
+          <div className="flex items-center gap-2">
+            <Info className="w-4 h-4 shrink-0" />
+            <span>{errorMessage}</span>
+          </div>
+          <button onClick={() => setErrorMessage(null)} className="hover:text-amber-200 transition-colors">
+            <X size={18} />
+          </button>
+        </div>
+      )}
+
+      <header className={`sticky z-50 bg-slate-900/90 backdrop-blur-2xl border-b border-slate-800 px-6 py-4 shadow-xl ${showApiKeyPrompt ? 'top-[72px] md:top-[56px]' : 'top-0'}`}>
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-4">
             <div className="bg-indigo-600 p-3 rounded-2xl shadow-xl shadow-indigo-500/30 ring-2 ring-indigo-500/20">
@@ -448,8 +288,8 @@ const App: React.FC = () => {
                 key={`${s.ticker}-${s.currentPrice}`}
                 onClick={() => setSelectedStock(s)}
                 className={`px-5 py-2.5 rounded-2xl border text-left transition-all shrink-0 hover:scale-105 active:scale-95 ${
-                  selectedStock.ticker === s.ticker 
-                  ? 'bg-indigo-600/20 border-indigo-500 text-indigo-300 shadow-indigo-500/10' 
+                  selectedStock.ticker === s.ticker
+                  ? 'bg-indigo-600/20 border-indigo-500 text-indigo-300 shadow-indigo-500/10'
                   : 'bg-slate-800/40 border-slate-700 text-slate-500 hover:border-slate-600'
                 }`}
               >
@@ -462,15 +302,15 @@ const App: React.FC = () => {
       </header>
 
       <main key={selectedStock.ticker + selectedStock.currentPrice} className="max-w-7xl mx-auto px-6 mt-10 space-y-10 animate-in fade-in slide-in-from-bottom-6 duration-1000">
-        
+
         {/* DASHBOARD CARD */}
         <section className="bg-slate-900/40 rounded-[3rem] border border-slate-800/50 p-12 flex flex-col md:flex-row items-center gap-16 shadow-2xl relative overflow-hidden backdrop-blur-xl group">
           <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-600/5 blur-[140px] pointer-events-none group-hover:bg-indigo-600/10 transition-colors duration-1000" />
-          
+
           <div className="flex-1 text-center md:text-left z-10">
             <div className="flex items-center justify-center md:justify-start gap-3 mb-4">
-               <span className="px-3 py-1 bg-indigo-500/10 text-indigo-400 text-[10px] font-black rounded-full uppercase tracking-[0.2em] border border-indigo-500/20">Market Active</span>
-               <RefreshCw size={14} className={`text-slate-600 ${loading ? 'animate-spin' : ''}`} />
+              <span className="px-3 py-1 bg-indigo-500/10 text-indigo-400 text-[10px] font-black rounded-full uppercase tracking-[0.2em] border border-indigo-500/20">Market Active</span>
+              <RefreshCw size={14} className={`text-slate-600 ${loading ? 'animate-spin' : ''}`} />
             </div>
             <div className="flex flex-col md:flex-row md:items-end gap-3 md:gap-5 mb-8">
               <h2 className="text-7xl font-black text-white tracking-tighter leading-none drop-shadow-sm">{selectedStock.ticker}</h2>
@@ -530,8 +370,8 @@ const App: React.FC = () => {
                         key={date}
                         onClick={() => setSelectedExpiry(date)}
                         className={`px-5 py-3 rounded-2xl text-xs font-black transition-all whitespace-nowrap border shadow-sm ${
-                          selectedExpiry === date 
-                          ? 'bg-indigo-600 border-indigo-500 text-white shadow-indigo-600/20 scale-105' 
+                          selectedExpiry === date
+                          ? 'bg-indigo-600 border-indigo-500 text-white shadow-indigo-600/20 scale-105'
                           : 'bg-slate-800 border-slate-700/50 text-slate-400 hover:border-slate-600'
                         }`}
                       >
@@ -565,7 +405,7 @@ const App: React.FC = () => {
                   <tbody className="divide-y divide-slate-800/30 font-medium">
                     {filteredOptions.length > 0 ? filteredOptions.map((opt) => (
                       <React.Fragment key={opt.id}>
-                        <tr 
+                        <tr
                           onClick={() => handleRowClick(opt.id)}
                           className={`hover:bg-indigo-500/[0.04] transition-all group cursor-pointer border-l-4 border-transparent ${getRowHighlight(opt.status)}`}
                         >
@@ -583,49 +423,49 @@ const App: React.FC = () => {
                           <td className="px-6 py-8 font-mono text-lg text-slate-300 font-bold">R$ {opt.strike.toFixed(2)}</td>
                           <td className="px-6 py-8">
                             <div className="flex items-center gap-2">
-                               <ArrowUpRight className="w-3.5 h-3.5 text-indigo-500" />
-                               <span className="font-mono text-xl font-black text-indigo-400 tracking-tighter">R$ {opt.askPrice.toFixed(2)}</span>
+                              <ArrowUpRight className="w-3.5 h-3.5 text-indigo-500" />
+                              <span className="font-mono text-xl font-black text-indigo-400 tracking-tighter">R$ {opt.askPrice.toFixed(2)}</span>
                             </div>
                             <span className="text-[9px] text-slate-600 font-black uppercase tracking-tighter ml-5">Você Paga</span>
                           </td>
                           <td className="px-6 py-8">
                             <div className="flex items-center gap-2">
-                               <ArrowDownRight className="w-3.5 h-3.5 text-emerald-500" />
-                               <span className="font-mono text-xl font-black text-emerald-400 tracking-tighter">R$ {opt.bidPrice.toFixed(2)}</span>
+                              <ArrowDownRight className="w-3.5 h-3.5 text-emerald-500" />
+                              <span className="font-mono text-xl font-black text-emerald-400 tracking-tighter">R$ {opt.bidPrice.toFixed(2)}</span>
                             </div>
                             <span className="text-[9px] text-slate-600 font-black uppercase tracking-tighter ml-5">Você Recebe</span>
                           </td>
                           <td className="px-10 py-8 text-center flex items-center justify-center gap-4">
                             <OptionBadge status={opt.status} />
-                            {expandedOptionId === opt.id ? 
-                                <ChevronDown size={18} className="text-slate-500 group-hover:text-indigo-400 transition-colors" /> : 
-                                <ChevronRight size={18} className="text-slate-500 group-hover:text-indigo-400 transition-colors" />
+                            {expandedOptionId === opt.id
+                              ? <ChevronDown size={18} className="text-slate-500 group-hover:text-indigo-400 transition-colors" />
+                              : <ChevronRight size={18} className="text-slate-500 group-hover:text-indigo-400 transition-colors" />
                             }
                           </td>
                         </tr>
                         {expandedOptionId === opt.id && (
-                          <tr className="bg-slate-900/60 transition-all duration-300 ease-in-out">
+                          <tr className="bg-slate-900/60">
                             <td colSpan={5} className="px-10 py-6">
                               <div className="grid grid-cols-2 md:grid-cols-5 gap-y-4 gap-x-8 text-xs text-slate-400 font-semibold uppercase tracking-wide">
                                 <div className="flex flex-col gap-1">
                                   <span className="flex items-center gap-2 text-indigo-400"><Activity size={14} /> Vol. Implícita</span>
-                                  <span className="text-base font-mono text-slate-200">{opt.impliedVolatility?.toFixed(3) || 'N/A'}</span>
+                                  <span className="text-base font-mono text-slate-200">{opt.impliedVolatility.toFixed(3)}</span>
                                 </div>
                                 <div className="flex flex-col gap-1">
                                   <span className="flex items-center gap-2 text-indigo-400"><Sigma size={14} /> Delta</span>
-                                  <span className="text-base font-mono text-slate-200">{opt.delta?.toFixed(2) || 'N/A'}</span>
+                                  <span className="text-base font-mono text-slate-200">{opt.delta.toFixed(2)}</span>
                                 </div>
                                 <div className="flex flex-col gap-1">
                                   <span className="flex items-center gap-2 text-indigo-400"><Wind size={14} /> Gamma</span>
-                                  <span className="text-base font-mono text-slate-200">{opt.gamma?.toFixed(3) || 'N/A'}</span>
+                                  <span className="text-base font-mono text-slate-200">{opt.gamma.toFixed(3)}</span>
                                 </div>
                                 <div className="flex flex-col gap-1">
                                   <span className="flex items-center gap-2 text-indigo-400"><Thermometer size={14} /> Theta</span>
-                                  <span className="text-base font-mono text-slate-200">{opt.theta?.toFixed(3) || 'N/A'}</span>
+                                  <span className="text-base font-mono text-slate-200">{opt.theta.toFixed(3)}</span>
                                 </div>
                                 <div className="flex flex-col gap-1">
                                   <span className="flex items-center gap-2 text-indigo-400"><HeartHandshake size={14} /> Vega</span>
-                                  <span className="text-base font-mono text-slate-200">{opt.vega?.toFixed(3) || 'N/A'}</span>
+                                  <span className="text-base font-mono text-slate-200">{opt.vega.toFixed(3)}</span>
                                 </div>
                               </div>
                               <p className="text-[9px] text-slate-600 italic mt-6">
@@ -650,7 +490,7 @@ const App: React.FC = () => {
               <div className="absolute top-0 right-0 p-8">
                 <div className="bg-indigo-500/10 w-2 h-2 rounded-full animate-ping" />
               </div>
-              
+
               <div className="flex items-center justify-between mb-10">
                 <div className="flex items-center gap-5">
                   <div className="bg-indigo-600/20 p-4 rounded-[1.5rem] border border-indigo-500/30">
@@ -663,7 +503,7 @@ const App: React.FC = () => {
                 </div>
                 {loading && <Loader2 className="w-6 h-6 text-indigo-400 animate-spin" />}
               </div>
-              
+
               {insights ? (
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-12 items-start">
                   <div className="md:col-span-7 space-y-8">
@@ -677,35 +517,35 @@ const App: React.FC = () => {
                   </div>
                   <div className="md:col-span-5 bg-indigo-600/10 p-10 rounded-[2.5rem] border border-indigo-500/20 backdrop-blur-md shadow-2xl">
                     <h5 className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.3em] mb-5 border-b border-indigo-500/20 pb-2 flex items-center gap-2">
-                       <Target size={14} /> Foco Estratégico
+                      <Target size={14} /> Foco Estratégico
                     </h5>
                     <p className="text-white text-base font-bold leading-relaxed tracking-tight underline decoration-indigo-500/30 decoration-2 underline-offset-4">{insights.recommendation}</p>
                   </div>
                 </div>
               ) : (
                 <div className="h-32 flex flex-col items-center justify-center text-slate-500 gap-4">
-                   <div className="flex gap-2">
-                     <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce [animation-delay:-0.3s]" />
-                     <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce [animation-delay:-0.15s]" />
-                     <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce" />
-                   </div>
-                   <span className="text-[10px] font-black tracking-[0.4em] uppercase">Processando Big Data B3...</span>
+                  <div className="flex gap-2">
+                    <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce [animation-delay:-0.3s]" />
+                    <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce [animation-delay:-0.15s]" />
+                    <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce" />
+                  </div>
+                  <span className="text-[10px] font-black tracking-[0.4em] uppercase">Processando Big Data B3...</span>
                 </div>
               )}
             </div>
 
-            {/* GROUNDING SOURCES SECTION - REQUIRED FOR GOOGLE SEARCH TOOL */}
-            {sources.length > 0 && (
+            {/* GROUNDING SOURCES — obrigatório pelas diretrizes do Google Search grounding */}
+            {(selectedStock.sources?.length ?? 0) > 0 && (
               <div className="bg-slate-900/20 p-8 rounded-3xl border border-slate-800/50">
                 <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
                   <Globe size={14} /> Fontes de Dados de Mercado
                 </h4>
                 <div className="flex flex-wrap gap-4">
-                  {sources.map((source, idx) => (
-                    <a 
-                      key={idx} 
-                      href={source.uri} 
-                      target="_blank" 
+                  {selectedStock.sources!.map((source, idx) => (
+                    <a
+                      key={idx}
+                      href={source.uri}
+                      target="_blank"
                       rel="noopener noreferrer"
                       className="text-[11px] text-indigo-400 hover:text-indigo-300 transition-colors flex items-center gap-1.5 bg-slate-800/30 px-3 py-1.5 rounded-full border border-slate-700/50"
                     >
@@ -727,6 +567,7 @@ const App: React.FC = () => {
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={chartData}>
                     <XAxis dataKey="strike" hide />
+                    <YAxis hide />
                     <Tooltip contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #1e293b', borderRadius: '24px', padding: '20px', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)' }} cursor={{ fill: 'rgba(99, 102, 241, 0.05)' }} itemStyle={{ color: '#818cf8', fontWeight: '900', fontSize: '14px', fontFamily: 'monospace' }} />
                     <Bar dataKey="premium" radius={[12, 12, 0, 0]} animationBegin={300} animationDuration={1200}>
                       {chartData.map((entry, index) => (
@@ -775,7 +616,7 @@ const App: React.FC = () => {
         <div className="h-px bg-gradient-to-r from-transparent via-slate-800 to-transparent mb-12" />
         <div className="flex flex-col items-center gap-4">
           <p className="text-[11px] font-black text-slate-700 uppercase tracking-[0.5em]">
-            B3 Connect Protocol • Gemini 3.0 Pro AI • OpçõesExpert Pro v3.5
+            B3 Connect Protocol • Gemini 2.0 Flash AI • OpçõesExpert Pro v3.5
           </p>
           <div className="flex items-center gap-6">
             <span className="text-[9px] text-slate-800 font-bold uppercase border border-slate-900 px-3 py-1 rounded-full">Simulação de Risco</span>
